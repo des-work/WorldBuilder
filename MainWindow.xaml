@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Genisis.App"
+        xmlns:viewmodels="clr-namespace:Genisis.App.ViewModels"
         xmlns:models="clr-namespace:Genisis.Core.Models;assembly=Genisis.Core"
         mc:Ignorable="d"
         Title="Genisis AI" Height="720" Width="1280"
@@ -15,6 +16,35 @@
         <SolidColorBrush x:Key="PrimaryText" Color="#ecf0f1"/>
         <SolidColorBrush x:Key="AccentGreen" Color="#27ae60"/>
         <SolidColorBrush x:Key="AccentBrown" Color="#8d6e63"/>
+
+        <!-- DataTemplate for the Universe View -->
+        <DataTemplate DataType="{x:Type viewmodels:UniverseViewModel}">
+            <StackPanel Margin="20">
+                <TextBlock Text="{Binding Universe.Name}" 
+                           Foreground="{StaticResource PrimaryText}" 
+                           FontSize="28" FontWeight="Bold"/>
+                <TextBox Text="{Binding Universe.Description, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,15,0,0" MinHeight="150" TextWrapping="Wrap" AcceptsReturn="True"
+                         Background="#252526" Foreground="{StaticResource PrimaryText}" 
+                         BorderThickness="0" VerticalScrollBarVisibility="Auto"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- DataTemplate for the Story View -->
+        <DataTemplate DataType="{x:Type viewmodels:StoryViewModel}">
+            <StackPanel Margin="20">
+                <TextBlock Text="{Binding Story.Name}" 
+                           Foreground="{StaticResource PrimaryText}" 
+                           FontSize="28" FontWeight="Bold"/>
+                <TextBlock Text="Logline" Foreground="{StaticResource PrimaryText}" FontSize="14" Margin="0,15,0,5" Opacity="0.7"/>
+                <TextBox Text="{Binding Story.Logline, UpdateSourceTrigger=PropertyChanged}"
+                         MinHeight="100" TextWrapping="Wrap" AcceptsReturn="True"
+                         Background="#252526" Foreground="{StaticResource PrimaryText}" 
+                         BorderThickness="0" VerticalScrollBarVisibility="Auto"/>
+                <!-- We can add a list of chapters here later -->
+            </StackPanel>
+        </DataTemplate>
+
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -46,16 +76,22 @@
                     <HierarchicalDataTemplate DataType="{x:Type models:Universe}" ItemsSource="{Binding Stories}">
                         <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
                     </HierarchicalDataTemplate>
-                    <!-- Template for Story Items (no children yet) -->
-                    <DataTemplate DataType="{x:Type models:Story}">
+                    <!-- Template for Story Items, now hierarchical -->
+                    <HierarchicalDataTemplate DataType="{x:Type models:Story}" ItemsSource="{Binding Chapters}">
                         <TextBlock Text="{Binding Name}" Margin="15,0,0,0"/>
+                    </HierarchicalDataTemplate>
+                    <!-- Template for Chapter Items -->
+                    <DataTemplate DataType="{x:Type models:Chapter}">
+                        <TextBlock Text="{Binding Title}" Margin="30,0,0,0" FontStyle="Italic"/>
                     </DataTemplate>
                 </TreeView.Resources>
             </TreeView>
         </DockPanel>
 
         <!-- Center Pane -->
-        <Border Grid.Column="1" Background="#1e1e1e" />
+        <ContentControl Grid.Column="1" 
+                        Content="{Binding ActiveViewModel}"
+                        Background="#1e1e1e" />
 
         <!-- Right Pane -->
         <DockPanel Grid.Column="2" Background="{StaticResource SecondaryBackground}">

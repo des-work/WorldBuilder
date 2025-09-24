@@ -52,7 +52,7 @@ public partial class App : Application
         services.AddScoped<IUniverseRepository, UniverseRepository>();
         services.AddScoped<IStoryRepository, StoryRepository>();
         services.AddScoped<ICharacterRepository, CharacterRepository>();
-        // services.AddScoped<IChapterRepository, ChapterRepository>(); // Chapter repo still to be created
+        services.AddScoped<IChapterRepository, ChapterRepository>();
 
         // Register the ViewModel
         services.AddSingleton<MainViewModel>();
