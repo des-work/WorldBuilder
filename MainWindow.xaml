@@ -1,0 +1,24 @@
+﻿<Window x:Class="Genisis.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Genisis AI" Height="720" Width="1280">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/> <!-- Left Pane: Navigation -->
+            <ColumnDefinition Width="*"/>   <!-- Center Pane: Editor -->
+            <ColumnDefinition Width="300"/> <!-- Right Pane: AI/Context -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Pane -->
+        <Border Grid.Column="0" Background="#f0f0f0" BorderBrush="#cccccc" BorderThickness="0,0,1,0" />
+
+        <!-- Center Pane -->
+        <Border Grid.Column="1" Background="White" />
+
+        <!-- Right Pane -->
+        <Border Grid.Column="2" Background="#f0f0f0" BorderBrush="#cccccc" BorderThickness="1,0,0,0" />
+    </Grid>
+</Window>
