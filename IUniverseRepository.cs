@@ -2,9 +2,7 @@
 
 namespace Genisis.Core.Repositories;
 
-public interface IUniverseRepository
+public interface IUniverseRepository : IRepository<Universe>
 {
-    Task<Universe> AddAsync(Universe universe);
-    Task<List<Universe>> GetAllAsync();
     Task<Universe?> GetByIdWithStoriesAsync(int id);
 }

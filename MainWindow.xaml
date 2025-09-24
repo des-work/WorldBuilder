@@ -3,22 +3,66 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Genisis.App"
+        xmlns:models="clr-namespace:Genisis.Core.Models;assembly=Genisis.Core"
         mc:Ignorable="d"
-        Title="Genisis AI" Height="720" Width="1280">
+        Title="Genisis AI" Height="720" Width="1280"
+        Background="#FF2D2D30">
+    <Window.Resources>
+        <!-- A cozy, forest-inspired color palette -->
+        <SolidColorBrush x:Key="PrimaryBackground" Color="#2c3e50"/>
+        <SolidColorBrush x:Key="SecondaryBackground" Color="#34495e"/>
+        <SolidColorBrush x:Key="PrimaryText" Color="#ecf0f1"/>
+        <SolidColorBrush x:Key="AccentGreen" Color="#27ae60"/>
+        <SolidColorBrush x:Key="AccentBrown" Color="#8d6e63"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/> <!-- Left Pane: Navigation -->
+            <ColumnDefinition Width="300"/> <!-- Left Pane: Navigation -->
             <ColumnDefinition Width="*"/>   <!-- Center Pane: Editor -->
             <ColumnDefinition Width="300"/> <!-- Right Pane: AI/Context -->
         </Grid.ColumnDefinitions>
 
         <!-- Left Pane -->
-        <Border Grid.Column="0" Background="#f0f0f0" BorderBrush="#cccccc" BorderThickness="0,0,1,0" />
+        <DockPanel Grid.Column="0" Background="{StaticResource SecondaryBackground}">
+            <Button DockPanel.Dock="Top" Content="+ New Universe" Margin="10" Padding="10,5"
+                    Command="{Binding AddUniverseCommand}"
+                    Background="{StaticResource AccentGreen}" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+
+            <TreeView Background="Transparent" BorderThickness="0"
+                      ItemsSource="{Binding Universes}">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <!-- This two-way binding is the key to removing code-behind. -->
+                        <!-- It syncs the item's selected state with a property on the ViewModel. -->
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryText}"/>
+                        <Setter Property="Padding" Value="5"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.Resources>
+                    <!-- Template for Universe Items -->
+                    <HierarchicalDataTemplate DataType="{x:Type models:Universe}" ItemsSource="{Binding Stories}">
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                    </HierarchicalDataTemplate>
+                    <!-- Template for Story Items (no children yet) -->
+                    <DataTemplate DataType="{x:Type models:Story}">
+                        <TextBlock Text="{Binding Name}" Margin="15,0,0,0"/>
+                    </DataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+        </DockPanel>
 
         <!-- Center Pane -->
-        <Border Grid.Column="1" Background="White" />
+        <Border Grid.Column="1" Background="#1e1e1e" />
 
         <!-- Right Pane -->
-        <Border Grid.Column="2" Background="#f0f0f0" BorderBrush="#cccccc" BorderThickness="1,0,0,0" />
+        <DockPanel Grid.Column="2" Background="{StaticResource SecondaryBackground}">
+            <TextBlock DockPanel.Dock="Top" Text="Ask Your Universe" Foreground="{StaticResource PrimaryText}" 
+                       FontWeight="Bold" Margin="10" TextAlignment="Center"/>
+            <TextBox Margin="10,0,10,10" TextWrapping="Wrap" AcceptsReturn="True"
+                     Background="#252526" Foreground="{StaticResource PrimaryText}" BorderThickness="0"/>
+        </DockPanel>
     </Grid>
 </Window>
