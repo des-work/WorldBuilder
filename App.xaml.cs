@@ -54,6 +54,9 @@ public partial class App : Application
         services.AddScoped<ICharacterRepository, CharacterRepository>();
         services.AddScoped<IChapterRepository, ChapterRepository>();
 
+        // Register the Data Seeder
+        services.AddTransient<DataSeeder>();
+
         // Register the ViewModel
         services.AddSingleton<MainViewModel>();
 
@@ -74,6 +77,10 @@ public partial class App : Application
             // Get the DbContext instance and ensure the database is created
             var dbContext = services.GetRequiredService<GenesisDbContext>();
             await dbContext.Database.EnsureCreatedAsync();
+
+            // Seed the database with initial data if it's empty
+            var seeder = services.GetRequiredСЃervice<DataSeeder>();
+            await seeder.SeedAsync();
 
             // Load the main view model and its data
             var mainViewModel = services.GetRequiredService<MainViewModel>();
