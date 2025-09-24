@@ -31,8 +31,7 @@ public class MainViewModel : ViewModelBase
             else if (value is Story selectedStory)
             {
                 LoadChaptersAsync(selectedStory);
-                // We would create a StoryViewModel here
-                // ActiveViewModel = new StoryViewModel(selectedStory);
+                ActiveViewModel = new StoryViewModel(selectedStory);
             }
         }
     }
