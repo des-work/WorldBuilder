@@ -1,8 +1,8 @@
-﻿# 🌌 WorldBuilder (Genisis AI)
+﻿﻿# 🌌 World Builder AI
 
 **Unleash your imagination and build sprawling fictional universes with the help of an AI-powered co-creator.**
 
-WorldBuilder is a desktop application designed for writers, game developers, dungeon masters, and any creator who needs to manage complex fictional worlds. It provides a structured, hierarchical way to organize your ideas, from the grandest universe down to the individual chapters of a story, all while offering intelligent assistance to spark your creativity.
+World Builder AI is a desktop application designed for writers, game developers, dungeon masters, and any creator who needs to manage complex fictional worlds. It provides a structured, hierarchical way to organize your ideas, from the grandest universe down to the individual chapters of a story, all while offering intelligent assistance to spark your creativity.
 
 ## ✨ Features
 
@@ -29,12 +29,12 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/your-username/WorldBuilder.git
+    git clone https://github.com/your-username/WorldBuilderAI.git
     ```
 2.  **Open the solution:** Navigate to the cloned directory and open `Genisis.sln` in Visual Studio.
 3.  **Run the application:** Press `F5` or click the "Start" button to build and run the project.
 
-The application will automatically create a local SQLite database file (`genisis.db`) and log files in `%APPDATA%\GenisisAI\`.
+The application will automatically create a local SQLite database file (`worldbuilder.db`) and log files in `%APPDATA%\WorldBuilderAI\`.
 
 ## 🚀 Roadmap
 
