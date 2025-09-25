@@ -79,7 +79,7 @@ public partial class App : Application
             await dbContext.Database.EnsureCreatedAsync();
 
             // Seed the database with initial data if it's empty
-            var seeder = services.GetRequiredСЃervice<DataSeeder>();
+            var seeder = services.GetRequiredService<DataSeeder>();
             await seeder.SeedAsync();
 
             // Load the main view model and its data
