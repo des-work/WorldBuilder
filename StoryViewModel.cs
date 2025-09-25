@@ -1,25 +1,20 @@
 ﻿﻿using Genisis.Core.Models;
 using Genisis.Core.Repositories;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Genisis.App.ViewModels;
 
-public class StoryViewModel : ViewModelBase
+public class StoryViewModel : EditorViewModelBase<Story>
 {
     private readonly IStoryRepository _storyRepository;
-    public Story Story { get; }
+    public Story Story => Model;
 
-    public ICommand SaveCommand { get; }
-
-    public StoryViewModel(Story story, IStoryRepository storyRepository)
+    public StoryViewModel(Story story, IStoryRepository storyRepository) : base(story)
     {
-        Story = story;
         _storyRepository = storyRepository;
-        SaveCommand = new RelayCommand(async _ => await SaveAsync());
     }
 
-    private async Task SaveAsync()
+    protected override async Task OnSaveAsync()
     {
         await _storyRepository.UpdateAsync(Story);
     }

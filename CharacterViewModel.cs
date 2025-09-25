@@ -4,28 +4,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Genisis.App.ViewModels;
 
-public class CharacterViewModel : ViewModelBase
+public class CharacterViewModel : EditorViewModelBase<Character>
 {
     private readonly ICharacterRepository _characterRepository;
-    public Character Character { get; }
-
-    public ICommand SaveCommand { get; }
+    public Character Character => Model;
 
     // Expose enum values for the ComboBox in the view
     public IEnumerable<CharacterTier> Tiers => Enum.GetValues(typeof(CharacterTier)).Cast<CharacterTier>();
 
-    public CharacterViewModel(Character character, ICharacterRepository characterRepository)
+    public CharacterViewModel(Character character, ICharacterRepository characterRepository) : base(character)
     {
-        Character = character;
         _characterRepository = characterRepository;
-        SaveCommand = new RelayCommand(async _ => await SaveAsync());
     }
 
-    private async Task SaveAsync()
+    protected override async Task OnSaveAsync()
     {
         await _characterRepository.UpdateAsync(Character);
     }

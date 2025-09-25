@@ -1,27 +1,21 @@
 ﻿using Genisis.Core.Models;
 using Genisis.Core.Repositories;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Genisis.App.ViewModels;
 
-public class ChapterViewModel : ViewModelBase
+public class ChapterViewModel : EditorViewModelBase<Chapter>
 {
     private readonly IChapterRepository _chapterRepository;
-    public Chapter Chapter { get; }
+    public Chapter Chapter => Model;
 
-    public ICommand SaveCommand { get; }
-
-    public ChapterViewModel(Chapter chapter, IChapterRepository chapterRepository)
+    public ChapterViewModel(Chapter chapter, IChapterRepository chapterRepository) : base(chapter)
     {
-        Chapter = chapter;
         _chapterRepository = chapterRepository;
-        SaveCommand = new RelayCommand(async _ => await SaveAsync());
     }
 
-    private async Task SaveAsync()
+    protected override async Task OnSaveAsync()
     {
         await _chapterRepository.UpdateAsync(Chapter);
-        // We can add a "Saved!" notification here later.
     }
 }
