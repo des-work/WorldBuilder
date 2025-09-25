@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows;
 
 namespace Genisis.App.ViewModels;
 
@@ -13,6 +14,7 @@ public class MainViewModel : ViewModelBase
     private readonly IUniverseRepository _universeRepository;
     private readonly IStoryRepository _storyRepository;
     private readonly IChapterRepository _chapterRepository;
+    private readonly ICharacterRepository _characterRepository;
 
     public ObservableCollection<Universe> Universes { get; } = new();
 
@@ -28,6 +30,8 @@ public class MainViewModel : ViewModelBase
             // CanExecute status might have changed.
             (AddStoryCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (AddChapterCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            (AddCharacterCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            (DeleteCommand as RelayCommand)?.RaiseCanExecuteChanged();
             // Asynchronously load children and set the active view model
             HandleSelectionChangedAsync(value);
         }
@@ -39,13 +43,22 @@ public class MainViewModel : ViewModelBase
         {
             case Universe selectedUniverse:
                 await LoadStoriesAsync(selectedUniverse);
-                ActiveViewModel = new UniverseViewModel(selectedUniverse);
+                await LoadCharactersAsync(selectedUniverse);
+                ActiveViewModel = new UniverseViewModel(selectedUniverse, _universeRepository);
                 break;
             case Story selectedStory:
                 await LoadChaptersAsync(selectedStory);
-                ActiveViewModel = new StoryViewModel(selectedStory);
+                ActiveViewModel = new StoryViewModel(selectedStory, _storyRepository);
                 break;
-            // We will add Chapter and Character cases later
+            case Character selectedCharacter:
+                ActiveViewModel = new CharacterViewModel(selectedCharacter, _characterRepository);
+                break;
+            case CharacterFolderViewModel:
+                ActiveViewModel = null; // Or a dedicated view for the folder
+                break;
+            case Chapter selectedChapter:
+                ActiveViewModel = new ChapterViewModel(selectedChapter, _chapterRepository);
+                break;
             default:
                 ActiveViewModel = null;
                 break;
@@ -66,18 +79,25 @@ public class MainViewModel : ViewModelBase
     public ICommand AddUniverseCommand { get; }
     public ICommand AddStoryCommand { get; }
     public ICommand AddChapterCommand { get; }
+    public ICommand AddCharacterCommand { get; }
+    public ICommand DeleteCommand { get; }
 
-    public MainViewModel(IUniverseRepository universeRepository, IStoryRepository storyRepository, IChapterRepository chapterRepository)
+    public MainViewModel(IUniverseRepository universeRepository, IStoryRepository storyRepository, IChapterRepository chapterRepository, ICharacterRepository characterRepository)
     {
         _universeRepository = universeRepository;
         _storyRepository = storyRepository;
         _chapterRepository = chapterRepository;
+        _characterRepository = characterRepository;
 
         AddUniverseCommand = new RelayCommand(async _ => await AddUniverse());
         // A story can only be added if the selected item is a Universe.
         AddStoryCommand = new RelayCommand(async _ => await AddStory(), _ => SelectedItem is Universe);
         // A chapter can only be added if the selected item is a Story.
         AddChapterCommand = new RelayCommand(async _ => await AddChapter(), _ => SelectedItem is Story);
+        // A character can be added if a Universe or a CharacterFolder is selected.
+        AddCharacterCommand = new RelayCommand(async _ => await AddCharacter(), _ => SelectedItem is Universe or CharacterFolderViewModel);
+        // An item can be deleted if something is selected.
+        DeleteCommand = new RelayCommand(async _ => await DeleteSelectedItemAsync(), _ => SelectedItem is not null);
     }
 
     private async Task AddUniverse()
@@ -101,7 +121,8 @@ public class MainViewModel : ViewModelBase
             {
                 var newStory = new Story { Name = dialog.ResponseText, UniverseId = parentUniverse.Id };
                 var addedStory = await _storyRepository.AddAsync(newStory);
-                parentUniverse.Stories.Add(addedStory);
+                // No need to add to parentUniverse.Stories; EF handles the relationship.
+                parentUniverse.Items.Add(addedStory);   // Add to UI collection
                 SelectedItem = addedStory; // Select the new item
             }
         }
@@ -124,6 +145,99 @@ public class MainViewModel : ViewModelBase
         }
     }
 
+    private async Task AddCharacter()
+    {
+        Universe? parentUniverse = SelectedItem switch
+        {
+            Universe u => u,
+            CharacterFolderViewModel cf => cf.ParentUniverse,
+            _ => null
+        };
+
+        if (parentUniverse is not null)
+        {
+            var dialog = new InputDialog($"Enter the name for the new character in '{parentUniverse.Name}':", "New Character");
+            if (dialog.ShowDialog() == true)
+            {
+                var newCharacter = new Character { Name = dialog.ResponseText, UniverseId = parentUniverse.Id };
+                var addedCharacter = await _characterRepository.AddAsync(newCharacter);
+                // We need to find the folder to add the character to.
+                // No need to add to parentUniverse.Characters; EF handles the relationship.
+                var folder = parentUniverse.Items.OfType<CharacterFolderViewModel>().FirstOrDefault();
+                folder?.Characters.Add(addedCharacter);
+                SelectedItem = addedCharacter;
+            }
+        }
+    }
+
+    private async Task DeleteSelectedItemAsync()
+    {
+        if (SelectedItem is null) return;
+
+        var typeName = SelectedItem.GetType().Name;
+        var itemName = SelectedItem switch
+        {
+            Universe u => u.Name,
+            Story s => s.Name,
+            Chapter c => c.Title,
+            Character ch => ch.Name,
+            CharacterFolderViewModel => "Characters Folder",
+            _ => "the selected item"
+        };
+
+        var result = MessageBox.Show($"Are you sure you want to permanently delete the {typeName} '{itemName}'?",
+                                     "Confirm Deletion",
+                                     MessageBoxButton.YesNo,
+                                     MessageBoxImage.Warning);
+
+        if (result != MessageBoxResult.Yes) return;
+
+        if (SelectedItem is CharacterFolderViewModel)
+        {
+            MessageBox.Show("The 'Characters' folder cannot be deleted.", "Action Not Allowed", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        switch (SelectedItem)
+        {
+            case Universe universeToDelete:
+                await _universeRepository.DeleteAsync(universeToDelete);
+                Universes.Remove(universeToDelete);
+                break;
+
+            case Story storyToDelete:
+                await _storyRepository.DeleteAsync(storyToDelete);
+                // Find the parent universe to remove the story from its collection
+                var parentUniverse = Universes.FirstOrDefault(u => u.Id == storyToDelete.UniverseId);
+                // Remove from the UI collection
+                parentUniverse?.Items.Remove(storyToDelete);
+                break;
+
+            case Chapter chapterToDelete:
+                await _chapterRepository.DeleteAsync(chapterToDelete);
+                // Find the parent story to remove the chapter from its collection
+                Story? parentStory = null;
+                foreach (var u in Universes)
+                {
+                    parentStory = u.Stories.FirstOrDefault(s => s.Chapters.Contains(chapterToDelete));
+                    if (parentStory != null) break;
+                }
+                parentStory?.Chapters.Remove(chapterToDelete);
+                break;
+
+            case Character characterToDelete:
+                await _characterRepository.DeleteAsync(characterToDelete);
+                // Find the parent universe and then its character folder to remove the character
+                var parentUni = Universes.FirstOrDefault(u => u.Id == characterToDelete.UniverseId);
+                var folder = parentUni?.Items.OfType<CharacterFolderViewModel>().FirstOrDefault();
+                folder?.Characters.Remove(characterToDelete);
+                break;
+        }
+
+        // Clear the selection after deletion
+        SelectedItem = null;
+    }
+
     public async Task LoadInitialDataAsync()
     {
         var universes = await _universeRepository.GetAllAsync();
@@ -137,17 +251,20 @@ public class MainViewModel : ViewModelBase
     private async Task LoadStoriesAsync(Universe universe)
     {
         // Only load if the stories haven't been loaded yet.
-        if (universe.Stories.Any())
+        if (universe.Items.OfType<Story>().Any())
         {
             return;
         }
 
         var stories = await _storyRepository.GetByUniverseIdAsync(universe.Id);
-        // Clear any potential design-time items and add the loaded ones.
-        universe.Stories.Clear();
+        // The Stories collection on the model is managed by Entity Framework.
+        // We only need to populate the UI collection.
+        // We clear it first to prevent duplicates on re-load scenarios.
+        universe.Items.Clear();
         foreach (var story in stories)
         {
             universe.Stories.Add(story);
+            universe.Items.Add(story);
         }
     }
 
@@ -165,5 +282,25 @@ public class MainViewModel : ViewModelBase
         {
             story.Chapters.Add(chapter);
         }
+    }
+
+    private async Task LoadCharactersAsync(Universe universe)
+    {
+        var folder = universe.Items.OfType<CharacterFolderViewModel>().FirstOrDefault();
+        if (folder is null)
+        {
+            folder = new CharacterFolderViewModel(universe);
+            universe.Items.Add(folder);
+        }
+
+        // Only load if the folder is empty.
+        if (folder.Characters.Any())
+        {
+            return;
+        }
+
+        var characters = await _characterRepository.GetByUniverseIdAsync(universe.Id);
+        // The Characters collection on the model is managed by EF. We populate the folder's collection for the UI.
+        characters.ForEach(c => folder.Characters.Add(c));
     }
 }
