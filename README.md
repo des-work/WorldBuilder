@@ -25,7 +25,7 @@ At its heart, it combines a powerful organizational framework with a **100% loca
 
 ## Why Genisis AI?
 
-*   **From World Bible to Living World:** Don't just write *about* your characters—**talk to them**. Genisis AI's core feature is its ability to let you have real, in-character conversations. The AI embodies your character's persona, drawing from their bio, their world's lore, and even events from chapters they've appeared in.
+*   **From World Archive to Living World:** Don't just write *about* your characters—**talk to them**. Genisis AI's core feature is its ability to let you have real, in-character conversations. The AI embodies your character's persona, drawing from their bio, their world's lore, and even events from chapters they've appeared in.
 
 *   **Your Private AI Co-Creator:** All AI processing happens on your machine via Ollama. Your prompts, your world's data, and your creative sparks **never leave your computer**. You can use any model you've downloaded, ensuring complete privacy and ownership.
 
