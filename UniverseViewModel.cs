@@ -1,25 +1,20 @@
 ﻿﻿using Genisis.Core.Models;
 using Genisis.Core.Repositories;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Genisis.App.ViewModels;
 
-public class UniverseViewModel : ViewModelBase
+public class UniverseViewModel : EditorViewModelBase<Universe>
 {
     private readonly IUniverseRepository _universeRepository;
-    public Universe Universe { get; }
+    public Universe Universe => Model;
 
-    public ICommand SaveCommand { get; }
-
-    public UniverseViewModel(Universe universe, IUniverseRepository universeRepository)
+    public UniverseViewModel(Universe universe, IUniverseRepository universeRepository) : base(universe)
     {
-        Universe = universe;
         _universeRepository = universeRepository;
-        SaveCommand = new RelayCommand(async _ => await SaveAsync());
     }
 
-    private async Task SaveAsync()
+    protected override async Task OnSaveAsync()
     {
         await _universeRepository.UpdateAsync(Universe);
     }

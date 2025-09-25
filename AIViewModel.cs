@@ -1,15 +1,20 @@
 ﻿using Genisis.App.Services;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Genisis.App.ViewModels;
 
+public record ChatMessage(string Role, string Content);
+
 public class AIViewModel : ViewModelBase
 {
     private readonly IAiService _aiService;
     private string _systemPrompt = string.Empty;
+    private List<ChatMessage> _chatHistory = new();
 
     private string _interactionTitle = "Ask Your Universe";
     public string InteractionTitle
@@ -49,12 +54,14 @@ public class AIViewModel : ViewModelBase
     }
 
     public ICommand LoadModelsCommand { get; }
+    public ICommand ClearHistoryCommand { get; }
     public ICommand SendQueryCommand { get; }
 
     public AIViewModel(IAiService aiService)
     {
         _aiService = aiService;
         LoadModelsCommand = new RelayCommand(async _ => await LoadModelsAsync());
+        ClearHistoryCommand = new RelayCommand(_ => ClearHistory());
         SendQueryCommand = new RelayCommand(async _ => await SendQueryAsync(), _ => !IsLoading && !string.IsNullOrEmpty(SelectedModel));
     }
 
@@ -62,6 +69,7 @@ public class AIViewModel : ViewModelBase
     {
         InteractionTitle = title;
         _systemPrompt = systemPrompt;
+        ClearHistory(); // Clear history when context changes
     }
 
     private async Task LoadModelsAsync()
@@ -79,23 +87,55 @@ public class AIViewModel : ViewModelBase
         }
     }
 
+    private void ClearHistory()
+    {
+        _chatHistory.Clear();
+        AiResponse = "Select a model and ask a question about your selected item.";
+    }
+
     private async Task SendQueryAsync()
     {
         if (string.IsNullOrWhiteSpace(UserQuery) || SelectedModel is null) return;
 
         IsLoading = true;
-        AiResponse = "Thinking...";
-
-        var finalPrompt = $"{_systemPrompt}\n\nUser: {UserQuery}\n\nResponse:";
         
-        // Clear the response and prepare for streaming
-        AiResponse = string.Empty;
+        // Add user query to history and update display
+        var currentQuery = UserQuery;
+        _chatHistory.Add(new ChatMessage("User", currentQuery));
+        AiResponse = BuildResponseDisplay();
+        UserQuery = string.Empty; // Clear the input box immediately
+
+        var finalPrompt = BuildPrompt();
+        var fullBotResponse = new StringBuilder();
 
         await foreach (var chunk in _aiService.StreamCompletionAsync(SelectedModel, finalPrompt))
         {
-            AiResponse += chunk;
+            fullBotResponse.Append(chunk);
+            AiResponse = BuildResponseDisplay() + fullBotResponse;
         }
 
+        _chatHistory.Add(new ChatMessage("Assistant", fullBotResponse.ToString()));
         IsLoading = false;
+    }
+
+    private string BuildPrompt()
+    {
+        var sb = new StringBuilder(_systemPrompt);
+        foreach (var message in _chatHistory)
+        {
+            sb.AppendLine($"\n\n{message.Role}: {message.Content}");
+        }
+        sb.Append("\n\nAssistant:");
+        return sb.ToString();
+    }
+
+    private string BuildResponseDisplay()
+    {
+        var sb = new StringBuilder();
+        foreach (var message in _chatHistory)
+        {
+            sb.AppendLine($"{message.Role}:\n{message.Content}\n");
+        }
+        return sb.ToString();
     }
 }

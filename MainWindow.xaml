@@ -201,6 +201,9 @@
                 <Button Content="Refresh Models" Margin="0,5,0,0"
                         Command="{Binding AiViewModel.LoadModelsCommand}"
                         Background="#34495e" Foreground="White" BorderThickness="0"/>
+                <Button Content="Clear Memory" Margin="0,5,0,0"
+                        Command="{Binding AiViewModel.ClearHistoryCommand}"
+                        Background="{StaticResource AccentBrown}" Foreground="White" BorderThickness="0"/>
             </StackPanel>
 
             <StackPanel DockPanel.Dock="Bottom" Margin="10">
