@@ -1,4 +1,4 @@
-﻿using Genisis.Core.Models;
+﻿﻿using Genisis.Core.Models;
 using Genisis.Core.Repositories;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
