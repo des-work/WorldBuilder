@@ -1,5 +1,6 @@
-﻿﻿using Genisis.Core.Models;
+﻿﻿﻿﻿using Genisis.Core.Models;
 using Genisis.Core.Repositories;
+using Genisis.App.Views;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,6 +24,10 @@ public class MainViewModel : ViewModelBase
         {
             _selectedItem = value;
             OnPropertyChanged();
+            // When selection changes, we need to notify the commands that their
+            // CanExecute status might have changed.
+            (AddStoryCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            (AddChapterCommand as RelayCommand)?.RaiseCanExecuteChanged();
             // Asynchronously load children and set the active view model
             HandleSelectionChangedAsync(value);
         }
@@ -59,6 +64,8 @@ public class MainViewModel : ViewModelBase
     }
 
     public ICommand AddUniverseCommand { get; }
+    public ICommand AddStoryCommand { get; }
+    public ICommand AddChapterCommand { get; }
 
     public MainViewModel(IUniverseRepository universeRepository, IStoryRepository storyRepository, IChapterRepository chapterRepository)
     {
@@ -67,15 +74,54 @@ public class MainViewModel : ViewModelBase
         _chapterRepository = chapterRepository;
 
         AddUniverseCommand = new RelayCommand(async _ => await AddUniverse());
+        // A story can only be added if the selected item is a Universe.
+        AddStoryCommand = new RelayCommand(async _ => await AddStory(), _ => SelectedItem is Universe);
+        // A chapter can only be added if the selected item is a Story.
+        AddChapterCommand = new RelayCommand(async _ => await AddChapter(), _ => SelectedItem is Story);
     }
 
     private async Task AddUniverse()
     {
-        // This is a placeholder. In a real implementation, we would open a dialog
-        // to get the name from the user.
-        var newUniverse = new Universe { Name = "New Universe" };
-        var addedUniverse = await _universeRepository.AddAsync(newUniverse);
-        Universes.Add(addedUniverse);
+        var dialog = new InputDialog("Enter the name for the new universe:", "New Universe");
+        if (dialog.ShowDialog() == true)
+        {
+            var newUniverse = new Universe { Name = dialog.ResponseText };
+            var addedUniverse = await _universeRepository.AddAsync(newUniverse);
+            Universes.Add(addedUniverse);
+            SelectedItem = addedUniverse; // Select the new item
+        }
+    }
+
+    private async Task AddStory()
+    {
+        if (SelectedItem is Universe parentUniverse)
+        {
+            var dialog = new InputDialog($"Enter the name for the new story in '{parentUniverse.Name}':", "New Story");
+            if (dialog.ShowDialog() == true)
+            {
+                var newStory = new Story { Name = dialog.ResponseText, UniverseId = parentUniverse.Id };
+                var addedStory = await _storyRepository.AddAsync(newStory);
+                parentUniverse.Stories.Add(addedStory);
+                SelectedItem = addedStory; // Select the new item
+            }
+        }
+    }
+
+    private async Task AddChapter()
+    {
+        if (SelectedItem is Story parentStory)
+        {
+            var dialog = new InputDialog($"Enter the title for the new chapter in '{parentStory.Name}':", "New Chapter");
+            if (dialog.ShowDialog() == true)
+            {
+                var newChapter = new Chapter { Title = dialog.ResponseText, StoryId = parentStory.Id };
+                // Basic logic to set the chapter order
+                newChapter.ChapterOrder = (parentStory.Chapters.Any() ? parentStory.Chapters.Max(c => c.ChapterOrder) : 0) + 1;
+                var addedChapter = await _chapterRepository.AddAsync(newChapter);
+                parentStory.Chapters.Add(addedChapter);
+                SelectedItem = addedChapter; // Select the new item
+            }
+        }
     }
 
     public async Task LoadInitialDataAsync()

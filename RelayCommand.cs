@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Windows.Input;
 
 namespace Genisis.App.ViewModels;
@@ -28,5 +28,10 @@ public class RelayCommand : ICommand
     public void Execute(object? parameter)
     {
         _execute(parameter);
+    }
+
+    public void RaiseCanExecuteChanged()
+    {
+        CommandManager.InvalidateRequerySuggested();
     }
 }

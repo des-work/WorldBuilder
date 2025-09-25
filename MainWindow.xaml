@@ -68,11 +68,23 @@
                 <TreeView.Resources>
                     <!-- Template for Universe Items -->
                     <HierarchicalDataTemplate DataType="{x:Type models:Universe}" ItemsSource="{Binding Stories}">
-                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Add Story" Command="{Binding DataContext.AddStoryCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"/>
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
                     </HierarchicalDataTemplate>
                     <!-- Template for Story Items, now hierarchical -->
                     <HierarchicalDataTemplate DataType="{x:Type models:Story}" ItemsSource="{Binding Chapters}">
-                        <TextBlock Text="{Binding Name}" Margin="15,0,0,0"/>
+                        <TextBlock Text="{Binding Name}" Margin="15,0,0,0">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Add Chapter" Command="{Binding DataContext.AddChapterCommand, RelativeSource={RelativeSource AncestorType=TreeView}}"/>
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
                     </HierarchicalDataTemplate>
                     <!-- Template for Chapter Items -->
                     <DataTemplate DataType="{x:Type models:Chapter}">
