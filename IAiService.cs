@@ -6,5 +6,5 @@ namespace Genisis.App.Services;
 public interface IAiService
 {
     Task<List<string>> GetLocalModelsAsync();
-    Task<string> GetCompletionAsync(string model, string prompt);
+    IAsyncEnumerable<string> StreamCompletionAsync(string model, string prompt);
 }

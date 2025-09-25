@@ -87,10 +87,15 @@ public class AIViewModel : ViewModelBase
         AiResponse = "Thinking...";
 
         var finalPrompt = $"{_systemPrompt}\n\nUser: {UserQuery}\n\nResponse:";
-        var response = await _aiService.GetCompletionAsync(SelectedModel, finalPrompt);
+        
+        // Clear the response and prepare for streaming
+        AiResponse = string.Empty;
 
-        AiResponse = response;
-        UserQuery = string.Empty; // Clear the query box
+        await foreach (var chunk in _aiService.StreamCompletionAsync(SelectedModel, finalPrompt))
+        {
+            AiResponse += chunk;
+        }
+
         IsLoading = false;
     }
 }
