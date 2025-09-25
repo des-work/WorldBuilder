@@ -5,6 +5,7 @@ using Genisis.App.Views;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text;
 using System.Windows.Input;
 using System.Windows;
 
@@ -16,6 +17,8 @@ public class MainViewModel : ViewModelBase
     private readonly IStoryRepository _storyRepository;
     private readonly IChapterRepository _chapterRepository;
     private readonly ICharacterRepository _characterRepository;
+    private readonly IPromptGenerationService _promptGenerationService;
+    private readonly IItemHandlerFactory _itemHandlerFactory;
 
     public ObservableCollection<Universe> Universes { get; } = new();
 
@@ -86,44 +89,34 @@ public class MainViewModel : ViewModelBase
     public ICommand AddCharacterCommand { get; }
     public ICommand DeleteCommand { get; }
 
-    public MainViewModel(IUniverseRepository universeRepository, IStoryRepository storyRepository, IChapterRepository chapterRepository, ICharacterRepository characterRepository, AIViewModel aiViewModel)
+    public MainViewModel(IUniverseRepository universeRepository, IStoryRepository storyRepository, IChapterRepository chapterRepository, ICharacterRepository characterRepository, AIViewModel aiViewModel, IPromptGenerationService promptGenerationService, IItemHandlerFactory itemHandlerFactory)
     {
         _universeRepository = universeRepository;
         _storyRepository = storyRepository;
         _chapterRepository = chapterRepository;
         _characterRepository = characterRepository;
         AiViewModel = aiViewModel;
+        _promptGenerationService = promptGenerationService;
+        _itemHandlerFactory = itemHandlerFactory;
 
         AddUniverseCommand = new RelayCommand(async _ => await AddUniverse());
-        // A story can only be added if the selected item is a Universe.
-        AddStoryCommand = new RelayCommand(async _ => await AddStory(), _ => SelectedItem is Universe);
-        // A chapter can only be added if the selected item is a Story.
-        AddChapterCommand = new RelayCommand(async _ => await AddChapter(), _ => SelectedItem is Story);
-        // A character can be added if a Universe or a CharacterFolder is selected.
+        // These commands now delegate to the appropriate handler
+        AddStoryCommand = new RelayCommand(async _ => await AddChildItemAsync(), _ => SelectedItem is Universe);
+        AddChapterCommand = new RelayCommand(async _ => await AddChildItemAsync(), _ => SelectedItem is Story);
         AddCharacterCommand = new RelayCommand(async _ => await AddCharacter(), _ => SelectedItem is Universe or CharacterFolderViewModel);
-        // An item can be deleted if something is selected.
         DeleteCommand = new RelayCommand(async _ => await DeleteSelectedItemAsync(), _ => SelectedItem is not null);
     }
 
-    private void UpdateAiContext(object? selectedItem)
+    private async void UpdateAiContext(object? selectedItem)
     {
         string title;
         string systemPrompt;
 
         switch (selectedItem)
         {
-            case Universe u:
-                title = "Ask Your Universe";
-                systemPrompt = $"You are a world-building assistant. Your knowledge is based on the following context about the '{u.Name}' universe. Answer the user's questions based on this information.\n\nCONTEXT:\nUniverse Name: {u.Name}\nDescription: {u.Description}";
-                break;
-            case Story s:
-                title = $"Ask About '{s.Name}'";
-                systemPrompt = $"You are a world-building assistant. Your knowledge is based on the following context about the story '{s.Name}'. Answer the user's questions based on this information.\n\nCONTEXT:\nStory Name: {s.Name}\nLogline: {s.Logline}";
-                break;
-            case Character ch:
-                title = $"Speak with {ch.Name}";
-                systemPrompt = $"You are to role-play as the character '{ch.Name}'. Speak in their voice and embody their personality based on the following information. Do not break character. Do not mention that you are an AI. Respond directly to the user's message as if you are {ch.Name}.\n\nCHARACTER BIO:\nName: {ch.Name}\nTier: {ch.Tier}\nBio: {ch.Bio}";
-                break;
+            case Universe u: title = "Ask Your Universe"; systemPrompt = _promptGenerationService.GenerateUniversePrompt(u); break;
+            case Story s: title = $"Ask About '{s.Name}'"; systemPrompt = _promptGenerationService.GenerateStoryPrompt(s); break;
+            case Character ch: title = $"Speak with {ch.Name}"; systemPrompt = await _promptGenerationService.GenerateCharacterPromptAsync(ch); break;
             default:
                 title = "Ask Your Universe";
                 systemPrompt = "You are a helpful AI assistant. There is no specific item selected, so you have no context about the user's world.";
@@ -133,48 +126,12 @@ public class MainViewModel : ViewModelBase
         AiViewModel.UpdateInteraction(title, systemPrompt);
     }
 
-    private async Task AddUniverse()
+    private async Task AddChildItemAsync()
     {
-        var dialog = new InputDialog("Enter the name for the new universe:", "New Universe");
-        if (dialog.ShowDialog() == true)
+        var handler = _itemHandlerFactory.GetHandler(SelectedItem);
+        if (handler is not null && SelectedItem is not null)
         {
-            var newUniverse = new Universe { Name = dialog.ResponseText };
-            var addedUniverse = await _universeRepository.AddAsync(newUniverse);
-            Universes.Add(addedUniverse);
-            SelectedItem = addedUniverse; // Select the new item
-        }
-    }
-
-    private async Task AddStory()
-    {
-        if (SelectedItem is Universe parentUniverse)
-        {
-            var dialog = new InputDialog($"Enter the name for the new story in '{parentUniverse.Name}':", "New Story");
-            if (dialog.ShowDialog() == true)
-            {
-                var newStory = new Story { Name = dialog.ResponseText, UniverseId = parentUniverse.Id };
-                var addedStory = await _storyRepository.AddAsync(newStory);
-                // No need to add to parentUniverse.Stories; EF handles the relationship.
-                parentUniverse.Items.Add(addedStory);   // Add to UI collection
-                SelectedItem = addedStory; // Select the new item
-            }
-        }
-    }
-
-    private async Task AddChapter()
-    {
-        if (SelectedItem is Story parentStory)
-        {
-            var dialog = new InputDialog($"Enter the title for the new chapter in '{parentStory.Name}':", "New Chapter");
-            if (dialog.ShowDialog() == true)
-            {
-                var newChapter = new Chapter { Title = dialog.ResponseText, StoryId = parentStory.Id };
-                // Basic logic to set the chapter order
-                newChapter.ChapterOrder = (parentStory.Chapters.Any() ? parentStory.Chapters.Max(c => c.ChapterOrder) : 0) + 1;
-                var addedChapter = await _chapterRepository.AddAsync(newChapter);
-                parentStory.Chapters.Add(addedChapter);
-                SelectedItem = addedChapter; // Select the new item
-            }
+            await handler.AddChildAsync(SelectedItem);
         }
     }
 
@@ -187,19 +144,10 @@ public class MainViewModel : ViewModelBase
             _ => null
         };
 
-        if (parentUniverse is not null)
+        var handler = _itemHandlerFactory.GetHandler(parentUniverse is null ? SelectedItem : parentUniverse);
+        if (handler is not null && SelectedItem is not null)
         {
-            var dialog = new InputDialog($"Enter the name for the new character in '{parentUniverse.Name}':", "New Character");
-            if (dialog.ShowDialog() == true)
-            {
-                var newCharacter = new Character { Name = dialog.ResponseText, UniverseId = parentUniverse.Id };
-                var addedCharacter = await _characterRepository.AddAsync(newCharacter);
-                // We need to find the folder to add the character to.
-                // No need to add to parentUniverse.Characters; EF handles the relationship.
-                var folder = parentUniverse.Items.OfType<CharacterFolderViewModel>().FirstOrDefault();
-                folder?.Characters.Add(addedCharacter);
-                SelectedItem = addedCharacter;
-            }
+            await handler.AddChildAsync(SelectedItem);
         }
     }
 
@@ -231,40 +179,10 @@ public class MainViewModel : ViewModelBase
             return;
         }
 
-        switch (SelectedItem)
+        var handler = _itemHandlerFactory.GetHandler(SelectedItem);
+        if (handler is not null)
         {
-            case Universe universeToDelete:
-                await _universeRepository.DeleteAsync(universeToDelete);
-                Universes.Remove(universeToDelete);
-                break;
-
-            case Story storyToDelete:
-                await _storyRepository.DeleteAsync(storyToDelete);
-                // Find the parent universe to remove the story from its collection
-                var parentUniverse = Universes.FirstOrDefault(u => u.Id == storyToDelete.UniverseId);
-                // Remove from the UI collection
-                parentUniverse?.Items.Remove(storyToDelete);
-                break;
-
-            case Chapter chapterToDelete:
-                await _chapterRepository.DeleteAsync(chapterToDelete);
-                // Find the parent story to remove the chapter from its collection
-                Story? parentStory = null;
-                foreach (var u in Universes)
-                {
-                    parentStory = u.Stories.FirstOrDefault(s => s.Chapters.Contains(chapterToDelete));
-                    if (parentStory != null) break;
-                }
-                parentStory?.Chapters.Remove(chapterToDelete);
-                break;
-
-            case Character characterToDelete:
-                await _characterRepository.DeleteAsync(characterToDelete);
-                // Find the parent universe and then its character folder to remove the character
-                var parentUni = Universes.FirstOrDefault(u => u.Id == characterToDelete.UniverseId);
-                var folder = parentUni?.Items.OfType<CharacterFolderViewModel>().FirstOrDefault();
-                folder?.Characters.Remove(characterToDelete);
-                break;
+            await handler.DeleteAsync(SelectedItem, this);
         }
 
         // Clear the selection after deletion
@@ -335,5 +253,18 @@ public class MainViewModel : ViewModelBase
         var characters = await _characterRepository.GetByUniverseIdAsync(universe.Id);
         // The Characters collection on the model is managed by EF. We populate the folder's collection for the UI.
         characters.ForEach(c => folder.Characters.Add(c));
+    }
+
+    // This method is now only for adding the top-level Universe
+    private async Task AddUniverse()
+    {
+        var dialog = new InputDialog("Enter the name for the new universe:", "New Universe");
+        if (dialog.ShowDialog() == true)
+        {
+            var newUniverse = new Universe { Name = dialog.ResponseText };
+            var addedUniverse = await _universeRepository.AddAsync(newUniverse);
+            Universes.Add(addedUniverse);
+            SelectedItem = addedUniverse; // Select the new item
+        }
     }
 }

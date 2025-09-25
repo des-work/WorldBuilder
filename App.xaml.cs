@@ -1,6 +1,7 @@
 ﻿﻿using Genisis.Core.Data;
 using Genisis.Core.Repositories;
 using Genisis.App.Services;
+using Genisis.App.Implementation;
 using Genisis.App.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,6 +58,8 @@ public partial class App : Application
         
         // Register AI Services
         services.AddSingleton<IAiService, OllamaAiService>();
+        services.AddScoped<IPromptGenerationService, PromptGenerationService>();
+        services.AddScoped<IItemHandlerFactory, ItemHandlerFactory>();
 
         // Register the Data Seeder
         services.AddTransient<DataSeeder>();

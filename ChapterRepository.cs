@@ -1,4 +1,4 @@
-﻿using Genisis.Core.Data;
+﻿﻿using Genisis.Core.Data;
 using Genisis.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,6 +38,13 @@ public class ChapterRepository : IChapterRepository
     {
         _logger.LogInformation("Getting all chapters for StoryId: {StoryId}", storyId);
         return _dbContext.Chapters.Where(c => c.StoryId == storyId).OrderBy(c => c.ChapterOrder).ToListAsync();
+    }
+
+    public Task<List<Chapter>> GetByCharacterIdAsync(int characterId)
+    {
+        _logger.LogInformation("Getting all chapters for CharacterId: {CharacterId}", characterId);
+        return _dbContext.Chapters.Where(c => c.Characters.Any(ch => ch.Id == characterId))
+                                  .OrderBy(c => c.ChapterOrder).ToListAsync();
     }
 
     public Task UpdateAsync(Chapter entity)
