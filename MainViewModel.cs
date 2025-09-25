@@ -1,5 +1,6 @@
 ﻿﻿﻿﻿using Genisis.Core.Models;
 using Genisis.Core.Repositories;
+using Genisis.App.Services;
 using Genisis.App.Views;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -33,6 +34,7 @@ public class MainViewModel : ViewModelBase
             (AddCharacterCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (DeleteCommand as RelayCommand)?.RaiseCanExecuteChanged();
             // Asynchronously load children and set the active view model
+            UpdateAiContext(value);
             HandleSelectionChangedAsync(value);
         }
     }
@@ -76,18 +78,21 @@ public class MainViewModel : ViewModelBase
         }
     }
 
+    public AIViewModel AiViewModel { get; }
+
     public ICommand AddUniverseCommand { get; }
     public ICommand AddStoryCommand { get; }
     public ICommand AddChapterCommand { get; }
     public ICommand AddCharacterCommand { get; }
     public ICommand DeleteCommand { get; }
 
-    public MainViewModel(IUniverseRepository universeRepository, IStoryRepository storyRepository, IChapterRepository chapterRepository, ICharacterRepository characterRepository)
+    public MainViewModel(IUniverseRepository universeRepository, IStoryRepository storyRepository, IChapterRepository chapterRepository, ICharacterRepository characterRepository, AIViewModel aiViewModel)
     {
         _universeRepository = universeRepository;
         _storyRepository = storyRepository;
         _chapterRepository = chapterRepository;
         _characterRepository = characterRepository;
+        AiViewModel = aiViewModel;
 
         AddUniverseCommand = new RelayCommand(async _ => await AddUniverse());
         // A story can only be added if the selected item is a Universe.
@@ -98,6 +103,34 @@ public class MainViewModel : ViewModelBase
         AddCharacterCommand = new RelayCommand(async _ => await AddCharacter(), _ => SelectedItem is Universe or CharacterFolderViewModel);
         // An item can be deleted if something is selected.
         DeleteCommand = new RelayCommand(async _ => await DeleteSelectedItemAsync(), _ => SelectedItem is not null);
+    }
+
+    private void UpdateAiContext(object? selectedItem)
+    {
+        string title;
+        string systemPrompt;
+
+        switch (selectedItem)
+        {
+            case Universe u:
+                title = "Ask Your Universe";
+                systemPrompt = $"You are a world-building assistant. Your knowledge is based on the following context about the '{u.Name}' universe. Answer the user's questions based on this information.\n\nCONTEXT:\nUniverse Name: {u.Name}\nDescription: {u.Description}";
+                break;
+            case Story s:
+                title = $"Ask About '{s.Name}'";
+                systemPrompt = $"You are a world-building assistant. Your knowledge is based on the following context about the story '{s.Name}'. Answer the user's questions based on this information.\n\nCONTEXT:\nStory Name: {s.Name}\nLogline: {s.Logline}";
+                break;
+            case Character ch:
+                title = $"Speak with {ch.Name}";
+                systemPrompt = $"You are to role-play as the character '{ch.Name}'. Speak in their voice and embody their personality based on the following information. Do not break character. Do not mention that you are an AI. Respond directly to the user's message as if you are {ch.Name}.\n\nCHARACTER BIO:\nName: {ch.Name}\nTier: {ch.Tier}\nBio: {ch.Bio}";
+                break;
+            default:
+                title = "Ask Your Universe";
+                systemPrompt = "You are a helpful AI assistant. There is no specific item selected, so you have no context about the user's world.";
+                break;
+        }
+
+        AiViewModel.UpdateInteraction(title, systemPrompt);
     }
 
     private async Task AddUniverse()

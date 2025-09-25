@@ -1,5 +1,6 @@
-﻿using Genisis.Core.Data;
+﻿﻿using Genisis.Core.Data;
 using Genisis.Core.Repositories;
+using Genisis.App.Services;
 using Genisis.App.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,12 +54,17 @@ public partial class App : Application
         services.AddScoped<IStoryRepository, StoryRepository>();
         services.AddScoped<ICharacterRepository, CharacterRepository>();
         services.AddScoped<IChapterRepository, ChapterRepository>();
+        
+        // Register AI Services
+        services.AddSingleton<IAiService, OllamaAiService>();
 
         // Register the Data Seeder
         services.AddTransient<DataSeeder>();
 
-        // Register the ViewModel
+        // Register ViewModels
+        services.AddSingleton<AIViewModel>();
         services.AddSingleton<MainViewModel>();
+
 
         // Register the MainWindow
         services.AddSingleton<MainWindow>();
@@ -84,6 +90,7 @@ public partial class App : Application
 
             // Load the main view model and its data
             var mainViewModel = services.GetRequiredService<MainViewModel>();
+            await mainViewModel.AiViewModel.LoadModelsCommand.ExecuteAsync(null); // Load models on startup
             await mainViewModel.LoadInitialDataAsync();
 
             var mainWindow = services.GetRequiredService<MainWindow>();
