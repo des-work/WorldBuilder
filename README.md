@@ -1,20 +1,37 @@
-﻿# 🌌 WorldBuilder (Genisis AI)
+<div align="center">
+  <br/>
+  <h1>🌌 Genisis AI</h1>
+  <strong>Your intelligent partner for building living, breathing worlds.</strong>
+  <br/>
+</div>
 
-**Unleash your imagination and build sprawling fictional universes with the help of an AI-powered co-creator.**
+<div align="center">
+  <!-- Placeholder for badges -->
+  <img src="https://img.shields.io/badge/build-passing-green" alt="Build Status">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
+  <img src="https://img.shields.io/badge/.NET-8.0-purple" alt=".NET Version">
+</div>
 
-WorldBuilder is a desktop application designed for writers, game developers, dungeon masters, and any creator who needs to manage complex fictional worlds. It provides a structured, hierarchical way to organize your ideas, from the grandest universe down to the individual chapters of a story, all while offering intelligent assistance to spark your creativity.
+---
 
-## ✨ Features
+## What is Genisis AI?
 
-*   **Hierarchical Organization:** Structure your world logically with a tree-based view:
-    *   **Universes:** The top-level container for your entire world.
-    *   **Stories:** Individual narratives within your universe.
-    *   **Chapters:** The building blocks of your stories.
-    *   **Characters:** The people who inhabit your world.
-*   **Rich Content Editing:** Flesh out your creations with dedicated editors for descriptions, loglines, character bios, and chapter content.
-*   **AI-Powered Companion:** The "Ask Your Universe" feature (in development) will allow you to query your own world's lore, generate ideas, and overcome writer's block.
-*   **Local-First Data:** Your work is saved locally in a private SQLite database. You own your data.
-*   **Modern & Extensible:** Built with modern .NET, WPF, and a clean MVVM architecture, making it easy to understand and extend.
+Genisis AI transforms the daunting task of world-building from a static, note-taking exercise into a dynamic, interactive conversation. It's a desktop application for writers, game developers, and dungeon masters who want to go deeper than a wiki. Genisis AI is your co-creator, helping you not only to document your world but to truly *understand* it.
+
+At its heart, it combines a powerful organizational framework with a **100% local, private, and context-aware AI** that brings your universe to life.
+
+<!-- Placeholder for a screenshot or GIF of the app in action -->
+`[Image: A screenshot showing the TreeView, a character editor, and the AI chat pane.]`
+
+## Why Genisis AI?
+
+*   **From World Bible to Living World:** Don't just write *about* your characters—**talk to them**. Genisis AI's core feature is its ability to let you have real, in-character conversations. The AI embodies your character's persona, drawing from their bio, their world's lore, and even events from chapters they've appeared in.
+
+*   **Your Private AI Co-Creator:** All AI processing happens on your machine via Ollama. Your prompts, your world's data, and your creative sparks **never leave your computer**. You can use any model you've downloaded, ensuring complete privacy and ownership.
+
+*   **A Structure That Sparks Creativity:** The hierarchical `TreeView` provides the perfect balance of organization and discovery. See the grand sweep of your universe, then drill down into the details of a single chapter or character with a click.
+
+*   **Built for the Modern Creator:** A clean, intuitive interface with modern UX considerations like "dirty" state tracking and "Saved!" notifications means you spend less time fighting the tool and more time creating.
 
 ## Getting Started
 
@@ -22,34 +39,35 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 ### Prerequisites
 
-*   [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (or newer)
-*   [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) with the ".NET desktop development" workload installed.
+*   **.NET 8 SDK** (or newer)
+*   **Visual Studio 2022** with the ".NET desktop development" workload installed.
+*   **Ollama:** To use the AI features, you must have Ollama installed and running on your machine with at least one model downloaded (e.g., `ollama run llama3`).
 
 ### Installation
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/your-username/WorldBuilder.git
+    git clone https://github.com/your-username/GenisisAI.git
     ```
 2.  **Open the solution:** Navigate to the cloned directory and open `Genisis.sln` in Visual Studio.
 3.  **Run the application:** Press `F5` or click the "Start" button to build and run the project.
 
 The application will automatically create a local SQLite database file (`genisis.db`) and log files in `%APPDATA%\GenisisAI\`.
 
-## 🚀 Roadmap
+## 🚀 Next Steps & Roadmap
 
 *   **Universe Timeline:** A visual tool to navigate the connections and chronology of your stories and characters.
 *   **Character-to-Chapter Linking UI:** A dedicated interface for easily managing which characters appear in which chapters.
 *   **Inline Renaming:** The ability to rename items directly from the `TreeView`.
 
-## 🛠️ Key Technologies
+## 🛠️ Technology Stack
 
 *   **Framework:** .NET 8 & C# 12
 *   **UI:** Windows Presentation Foundation (WPF)
 *   **Architecture:** Model-View-ViewModel (MVVM)
 *   **Database:** Entity Framework Core 8 with SQLite
 *   **Logging:** Serilog
- *   **AI Integration:** Ollama
+*   **AI Integration:** Ollama
 
 ## Contributing
 
@@ -59,4 +77,6 @@ Please feel free to fork the repo, create a feature branch, and submit a pull re
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the MIT License.
+
+
