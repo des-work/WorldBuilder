@@ -1,6 +1,7 @@
 ﻿﻿using Genisis.Core.Models;
 using Genisis.Core.Repositories;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -22,17 +23,27 @@ public class MainViewModel : ViewModelBase
         {
             _selectedItem = value;
             OnPropertyChanged();
-            // Handle selection logic based on the type of the selected item
-            if (value is Universe selectedUniverse)
-            {
-                LoadStoriesAsync(selectedUniverse);
+            // Asynchronously load children and set the active view model
+            HandleSelectionChangedAsync(value);
+        }
+    }
+
+    private async void HandleSelectionChangedAsync(object? selectedItem)
+    {
+        switch (selectedItem)
+        {
+            case Universe selectedUniverse:
+                await LoadStoriesAsync(selectedUniverse);
                 ActiveViewModel = new UniverseViewModel(selectedUniverse);
-            }
-            else if (value is Story selectedStory)
-            {
-                LoadChaptersAsync(selectedStory);
+                break;
+            case Story selectedStory:
+                await LoadChaptersAsync(selectedStory);
                 ActiveViewModel = new StoryViewModel(selectedStory);
-            }
+                break;
+            // We will add Chapter and Character cases later
+            default:
+                ActiveViewModel = null;
+                break;
         }
     }
 
@@ -46,9 +57,6 @@ public class MainViewModel : ViewModelBase
             OnPropertyChanged();
         }
     }
-
-    public ObservableCollection<Story> Stories { get; } = new();
-    public ObservableCollection<Chapter> Chapters { get; } = new();
 
     public ICommand AddUniverseCommand { get; }
 
@@ -82,28 +90,34 @@ public class MainViewModel : ViewModelBase
 
     private async Task LoadStoriesAsync(Universe universe)
     {
-        Stories.Clear();
-        if (universe is not null)
+        // Only load if the stories haven't been loaded yet.
+        if (universe.Stories.Any())
         {
-            var stories = await _storyRepository.GetByUniverseIdAsync(universe.Id);
-            foreach (var story in stories)
-            {
-                Stories.Add(story);
-            }
+            return;
+        }
+
+        var stories = await _storyRepository.GetByUniverseIdAsync(universe.Id);
+        // Clear any potential design-time items and add the loaded ones.
+        universe.Stories.Clear();
+        foreach (var story in stories)
+        {
+            universe.Stories.Add(story);
         }
     }
 
     private async Task LoadChaptersAsync(Story story)
     {
-        Chapters.Clear();
-        if (story is not null)
+        // Only load if chapters haven't been loaded yet.
+        if (story.Chapters.Any())
         {
-            var chapters = await _chapterRepository.GetByStoryIdAsync(story.Id);
-            foreach (var chapter in chapters)
-            {
-                // This is inefficient. We will improve this later.
-                story.Chapters.Add(chapter);
-            }
+            return;
+        }
+
+        var chapters = await _chapterRepository.GetByStoryIdAsync(story.Id);
+        story.Chapters.Clear();
+        foreach (var chapter in chapters)
+        {
+            story.Chapters.Add(chapter);
         }
     }
 }
