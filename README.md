@@ -36,13 +36,20 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 The application will automatically create a local SQLite database file (`genisis.db`) and log files in `%APPDATA%\GenisisAI\`.
 
-## 🛠️ Technology Stack
+## 🚀 Roadmap
+
+*   **Universe Timeline:** A visual tool to navigate the connections and chronology of your stories and characters.
+*   **Character-to-Chapter Linking UI:** A dedicated interface for easily managing which characters appear in which chapters.
+*   **Inline Renaming:** The ability to rename items directly from the `TreeView`.
+
+## 🛠️ Key Technologies
 
 *   **Framework:** .NET 8 & C# 12
 *   **UI:** Windows Presentation Foundation (WPF)
 *   **Architecture:** Model-View-ViewModel (MVVM)
 *   **Database:** Entity Framework Core 8 with SQLite
 *   **Logging:** Serilog
+ *   **AI Integration:** Ollama
 
 ## Contributing
 
