@@ -54,6 +54,9 @@ public partial class AIViewModel : ViewModelBase
 
     private async Task LoadModelsAsync()
     {
+        // Only load if we haven't loaded models before
+        if (AvailableModels.Any()) return;
+
         AvailableModels.Clear();
         var models = await _aiService.GetLocalModelsAsync();
         foreach (var model in models)
@@ -61,7 +64,7 @@ public partial class AIViewModel : ViewModelBase
             AvailableModels.Add(model);
         }
         // Select the first model by default if any exist
-        if (AvailableModels.Any())
+        if (AvailableModels.Any() && SelectedModel is null)
         {
             SelectedModel = AvailableModels.First();
         }

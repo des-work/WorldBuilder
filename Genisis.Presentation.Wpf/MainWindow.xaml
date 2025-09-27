@@ -8,7 +8,10 @@
         xmlns:models="clr-namespace:Genisis.Core.Models"
         mc:Ignorable="d"
         Title="WorldBuilder AI" Height="720" Width="1280"
-        Background="#FF2D2D30">
+        Background="#FF2D2D30"
+        RenderOptions.BitmapScalingMode="HighQuality"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -31,7 +34,9 @@
 
             <TreeView x:Name="MainTreeView" Background="Transparent" BorderThickness="0"
                       SelectedItemChanged="MainTreeView_SelectedItemChanged"
-                      ItemsSource="{Binding Universes}">
+                      ItemsSource="{Binding Universes}"
+                      VirtualizingStackPanel.IsVirtualizing="True"
+                      VirtualizingStackPanel.VirtualizationMode="Recycling">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}"/>
                 </TreeView.ItemContainerStyle>
@@ -116,6 +121,13 @@
                     <ContentControl ContentTemplate="{StaticResource ChapterViewTemplate}" Content="{Binding}"/>
                 </DataTemplate>
             </ContentControl.Resources>
+            <!-- Loading Overlay -->
+            <Grid Background="#80000000" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="Loading..." Foreground="White" FontSize="16" Margin="0,0,0,10"/>
+                    <ProgressBar Width="200" Height="4" IsIndeterminate="True"/>
+                </StackPanel>
+            </Grid>
         </ContentControl>
 
         <!-- Right Pane -->

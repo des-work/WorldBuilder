@@ -89,22 +89,39 @@ public partial class App : Application
             using var scope = _host.Services.CreateScope();
             var services = scope.ServiceProvider;
 
-            // Get the DbContext instance and migrate the database
+            // Get the DbContext instance and migrate the database (fast operation)
             var dbContext = services.GetRequiredService<GenesisDbContext>();
-            await dbContext.Database.MigrateAsync();
+            await dbContext.Database.MigrateAsync().ConfigureAwait(false);
 
-            // Seed the database with initial data if it's empty
+            // Seed the database with initial data if it's empty (can be done lazily)
             var seeder = services.GetRequiredService<DataSeeder>();
-            await seeder.SeedAsync();
+            await seeder.SeedAsync().ConfigureAwait(false);
 
-            // Load the main view model and its data
+            // Get the main view model and show the UI immediately
             var mainViewModel = services.GetRequiredService<MainViewModel>();
-            await mainViewModel.AiViewModel.LoadModelsCommand.ExecuteAsync(null); // Load models on startup
-            await mainViewModel.LoadInitialDataAsync();
-
             var mainWindow = services.GetRequiredService<MainWindow>();
             mainWindow.DataContext = mainViewModel; // Set the DataContext
+
+            // Show the window immediately for faster perceived startup
             mainWindow.Show();
+
+            // Load initial data and AI models asynchronously in the background
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    // Load AI models first (user might want to use AI features immediately)
+                    await mainViewModel.AiViewModel.LoadModelsCommand.ExecuteAsync(null);
+
+                    // Then load the universe data
+                    await mainViewModel.LoadInitialDataAsync();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error during background initialization");
+                    // Don't show error to user - app is already running
+                }
+            });
 
             base.OnStartup(e);
         }

@@ -17,6 +17,7 @@ namespace Genisis.Infrastructure.Services;
 public class OllamaAiService : IAiService
 {
     private readonly HttpClient _httpClient;
+    private List<string>? _cachedModels;
 
     public OllamaAiService()
     {
@@ -25,6 +26,10 @@ public class OllamaAiService : IAiService
 
     public async Task<List<string>> GetLocalModelsAsync()
     {
+        // Return cached models if available
+        if (_cachedModels != null)
+            return _cachedModels;
+
         try
         {
             var response = await _httpClient.GetAsync("/api/tags");
@@ -36,13 +41,19 @@ public class OllamaAiService : IAiService
                 .Where(name => !string.IsNullOrEmpty(name))
                 .ToList();
 
-            return models ?? new List<string>();
+            _cachedModels = models ?? new List<string>();
+            return _cachedModels;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Failed to get local Ollama models. Is Ollama running?");
             return new List<string>(); // Return empty list on error
         }
+    }
+
+    public void ClearModelCache()
+    {
+        _cachedModels = null;
     }
 
     public async IAsyncEnumerable<string> StreamCompletionAsync(string model, string prompt, [EnumeratorCancellation] CancellationToken cancellationToken = default)

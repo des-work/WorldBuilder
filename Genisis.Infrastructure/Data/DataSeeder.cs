@@ -16,11 +16,17 @@ public class DataSeeder
         _dbContext = dbContext;
     }
 
+    private static bool _seeded = false;
+
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
+        // Only seed once per application lifetime
+        if (_seeded) return;
+
         // Check if data already exists to prevent re-seeding
         if (await _dbContext.Universes.AnyAsync(cancellationToken))
         {
+            _seeded = true;
             return; // Database has already been seeded
         }
 
@@ -39,5 +45,6 @@ public class DataSeeder
 
         _dbContext.Universes.Add(sampleUniverse);
         await _dbContext.SaveChangesAsync(cancellationToken);
+        _seeded = true;
     }
 }

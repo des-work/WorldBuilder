@@ -20,6 +20,9 @@ public class MainViewModel : ViewModelBase
 
     public ObservableCollection<Universe> Universes { get; } = new();
 
+    [ObservableProperty]
+    private bool _isLoading;
+
     private object? _selectedItem;
     public object? SelectedItem
     {
@@ -128,13 +131,27 @@ public class MainViewModel : ViewModelBase
         AiViewModel.UpdateInteraction(title, systemPrompt);
     }
 
+    private bool _dataLoaded = false;
+
     public async Task LoadInitialDataAsync(CancellationToken cancellationToken = default)
     {
-        var universes = await _universeRepository.GetAllAsync(cancellationToken);
-        Universes.Clear();
-        foreach (var universe in universes)
+        // Only load once
+        if (_dataLoaded) return;
+
+        IsLoading = true;
+        try
         {
-            Universes.Add(universe);
+            var universes = await _universeRepository.GetAllAsync(cancellationToken);
+            Universes.Clear();
+            foreach (var universe in universes)
+            {
+                Universes.Add(universe);
+            }
+            _dataLoaded = true;
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
