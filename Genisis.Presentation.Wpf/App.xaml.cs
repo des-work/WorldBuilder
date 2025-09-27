@@ -1,5 +1,5 @@
-using Genisis.Core.Data;
 using Genisis.Core.Repositories;
+using Genisis.Core.Services;
 using Genisis.Application.Services;
 using Genisis.Application.Handlers;
 using Genisis.Presentation.Wpf.ViewModels;
@@ -13,11 +13,12 @@ using Microsoft.Extensions.Hosting;
 using System.IO;
 using Serilog;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace Genisis.Presentation.Wpf;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private readonly IHost _host;
 
@@ -111,7 +112,7 @@ public partial class App : Application
                 try
                 {
                     // Load AI models first (user might want to use AI features immediately)
-                    await mainViewModel.AiViewModel.LoadModelsCommand.ExecuteAsync(null);
+                    mainViewModel.AiViewModel.LoadModelsCommand.Execute(null);
 
                     // Then load the universe data
                     await mainViewModel.LoadInitialDataAsync();

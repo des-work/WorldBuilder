@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Genisis.Core.Services;
 using System.Collections.Generic;
@@ -33,17 +34,19 @@ public partial class AIViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isLoading;
 
-    public IAsyncRelayCommand LoadModelsCommand { get; }
-    public IRelayCommand ClearHistoryCommand { get; }
-    public IAsyncRelayCommand SendQueryCommand { get; }
+    public RelayCommand LoadModelsCommand { get; }
+    public RelayCommand ClearHistoryCommand { get; }
+    public RelayCommand SendQueryCommand { get; }
 
     public AIViewModel(IAiService aiService)
     {
         _aiService = aiService;
-        LoadModelsCommand = new AsyncRelayCommand(LoadModelsAsync);
-        ClearHistoryCommand = new RelayCommand(ClearHistory);
-        SendQueryCommand = new AsyncRelayCommand(SendQueryAsync, () => !IsLoading && !string.IsNullOrEmpty(SelectedModel));
+        LoadModelsCommand = new RelayCommand(async _ => await LoadModelsAsync());
+        ClearHistoryCommand = new RelayCommand(_ => ClearHistory());
+        SendQueryCommand = new RelayCommand(async _ => await SendQueryAsync(), _ => !IsLoading && !string.IsNullOrEmpty(SelectedModel));
     }
+
+    private bool CanSendQuery() => !IsLoading && !string.IsNullOrEmpty(SelectedModel);
 
     public void UpdateInteraction(string title, string systemPrompt)
     {

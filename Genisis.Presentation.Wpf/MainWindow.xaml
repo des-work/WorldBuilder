@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Genisis.Presentation.Wpf"
         xmlns:viewmodels="clr-namespace:Genisis.Presentation.Wpf.ViewModels"
-        xmlns:models="clr-namespace:Genisis.Core.Models"
+        xmlns:models="clr-namespace:Genisis.Core.Models;assembly=Genisis.Core"
         mc:Ignorable="d"
         Title="WorldBuilder AI" Height="720" Width="1280"
         Background="#FF2D2D30"

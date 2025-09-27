@@ -1,15 +1,21 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Genisis.Core.Models;
 using Genisis.Core.Repositories;
 using Genisis.Application.Services;
 using Genisis.Presentation.Wpf.Services;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Genisis.Presentation.Wpf.ViewModels;
 
-public class MainViewModel : ViewModelBase
+public partial class MainViewModel : ViewModelBase
 {
     private readonly IUniverseRepository _universeRepository;
     private readonly IStoryRepository _storyRepository;

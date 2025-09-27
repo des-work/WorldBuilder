@@ -7,7 +7,6 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Genisis.Presentation.Wpf</AssemblyName>
     <RootNamespace>Genisis.Presentation.Wpf</RootNamespace>
-    <ApplicationIcon>app.ico</ApplicationIcon>
     <StartupObject>Genisis.Presentation.Wpf.App</StartupObject>
   </PropertyGroup>
 
