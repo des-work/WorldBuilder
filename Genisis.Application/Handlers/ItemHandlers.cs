@@ -1,6 +1,6 @@
 using Genisis.Core.Models;
 using Genisis.Core.Repositories;
-using Genisis.Core.Services;
+using Genisis.Application.Handlers;
 using System.Linq;
 using System.Threading.Tasks;
 

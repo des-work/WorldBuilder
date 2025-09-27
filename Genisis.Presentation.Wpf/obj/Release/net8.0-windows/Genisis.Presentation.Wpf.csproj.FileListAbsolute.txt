@@ -1,0 +1,8 @@
+C:\Users\desmo\OneDrive\Consulting\Trident Analytics\WorldBuilder\Genisis.Presentation.Wpf\obj\Release\net8.0-windows\Genisis.Presentation.Wpf.csproj.AssemblyReference.cache
+C:\Users\desmo\OneDrive\Consulting\Trident Analytics\WorldBuilder\Genisis.Presentation.Wpf\obj\Release\net8.0-windows\Views\InputDialog.baml
+C:\Users\desmo\OneDrive\Consulting\Trident Analytics\WorldBuilder\Genisis.Presentation.Wpf\obj\Release\net8.0-windows\Views\InputDialog.g.cs
+C:\Users\desmo\OneDrive\Consulting\Trident Analytics\WorldBuilder\Genisis.Presentation.Wpf\obj\Release\net8.0-windows\App.g.cs
+C:\Users\desmo\OneDrive\Consulting\Trident Analytics\WorldBuilder\Genisis.Presentation.Wpf\obj\Release\net8.0-windows\GeneratedInternalTypeHelper.g.cs
+C:\Users\desmo\OneDrive\Consulting\Trident Analytics\WorldBuilder\Genisis.Presentation.Wpf\obj\Release\net8.0-windows\Genisis.Presentation.Wpf_MarkupCompile.cache
+C:\Users\desmo\OneDrive\Consulting\Trident Analytics\WorldBuilder\Genisis.Presentation.Wpf\obj\Release\net8.0-windows\MainWindow.g.cs
+C:\Users\desmo\OneDrive\Consulting\Trident Analytics\WorldBuilder\Genisis.Presentation.Wpf\obj\Release\net8.0-windows\Genisis.Presentation.Wpf_MarkupCompile.lref

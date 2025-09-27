@@ -1,4 +1,5 @@
 using Genisis.Core.Models;
+using Genisis.Core.Repositories;
 using Genisis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

@@ -104,23 +104,26 @@
         </DockPanel>
 
         <!-- Center Pane -->
-        <ContentControl Grid.Column="1"
-                        Content="{Binding ActiveViewModel}"
-                        Background="#1e1e1e">
-            <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type viewmodels:UniverseViewModel}">
-                    <ContentControl ContentTemplate="{StaticResource UniverseViewTemplate}" Content="{Binding}"/>
-                </DataTemplate>
-                <DataTemplate DataType="{x:Type viewmodels:StoryViewModel}">
-                    <ContentControl ContentTemplate="{StaticResource StoryViewTemplate}" Content="{Binding}"/>
-                </DataTemplate>
-                <DataTemplate DataType="{x:Type viewmodels:CharacterViewModel}">
-                    <ContentControl ContentTemplate="{StaticResource CharacterViewTemplate}" Content="{Binding}"/>
-                </DataTemplate>
-                <DataTemplate DataType="{x:Type viewmodels:ChapterViewModel}">
-                    <ContentControl ContentTemplate="{StaticResource ChapterViewTemplate}" Content="{Binding}"/>
-                </DataTemplate>
-            </ContentControl.Resources>
+        <Grid Grid.Column="1" Background="#1e1e1e">
+            <ContentControl>
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type viewmodels:UniverseViewModel}">
+                        <ContentControl ContentTemplate="{StaticResource UniverseViewTemplate}" Content="{Binding}"/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:StoryViewModel}">
+                        <ContentControl ContentTemplate="{StaticResource StoryViewTemplate}" Content="{Binding}"/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:CharacterViewModel}">
+                        <ContentControl ContentTemplate="{StaticResource CharacterViewTemplate}" Content="{Binding}"/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:ChapterViewModel}">
+                        <ContentControl ContentTemplate="{StaticResource ChapterViewTemplate}" Content="{Binding}"/>
+                    </DataTemplate>
+                </ContentControl.Resources>
+                <ContentControl.Content>
+                    <Binding Path="ActiveViewModel" />
+                </ContentControl.Content>
+            </ContentControl>
             <!-- Loading Overlay -->
             <Grid Background="#80000000" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -128,7 +131,7 @@
                     <ProgressBar Width="200" Height="4" IsIndeterminate="True"/>
                 </StackPanel>
             </Grid>
-        </ContentControl>
+        </Grid>
 
         <!-- Right Pane -->
         <DockPanel Grid.Column="2" Background="{StaticResource SecondaryBackground}">
