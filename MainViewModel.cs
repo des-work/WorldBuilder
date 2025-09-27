@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using Genisis.Core.Models;
+﻿﻿using Genisis.Core.Models;
 using Genisis.Core.Repositories;
 using Genisis.App.Services;
 using Genisis.App.Views;
@@ -37,12 +37,12 @@ public class MainViewModel : ViewModelBase
             (AddCharacterCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (DeleteCommand as RelayCommand)?.RaiseCanExecuteChanged();
             // Asynchronously load children and set the active view model
-            UpdateAiContext(value);
-            HandleSelectionChangedAsync(value);
+            _ = UpdateAiContext(value);
+            _ = HandleSelectionChangedAsync(value);
         }
     }
 
-    private async void HandleSelectionChangedAsync(object? selectedItem)
+    private async Task HandleSelectionChangedAsync(object? selectedItem)
     {
         switch (selectedItem)
         {
@@ -107,7 +107,7 @@ public class MainViewModel : ViewModelBase
         DeleteCommand = new RelayCommand(async _ => await DeleteSelectedItemAsync(), _ => SelectedItem is not null);
     }
 
-    private async void UpdateAiContext(object? selectedItem)
+    private async Task UpdateAiContext(object? selectedItem)
     {
         string title;
         string systemPrompt;

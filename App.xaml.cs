@@ -23,8 +23,8 @@ public partial class App : Application
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Debug() // Writes to Visual Studio's Debug output window
-            .WriteTo.File(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
-                                       "GenisisAI", "Logs", "log-.txt"), 
+            .WriteTo.File(                          Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                       "WorldBuilderAI", "Logs", "log-.txt"),
                           rollingInterval: RollingInterval.Day) // Creates a new log file each day
             .CreateLogger();
 
@@ -43,7 +43,7 @@ public partial class App : Application
     private void ConfigureServices(IServiceCollection services)
     {
         // The path for our local database file
-        var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GenisisAI", "genisis.db");
+        var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WorldBuilderAI", "worldbuilder.db");
         Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
 
         // Register the DbContext for Dependency Injection
