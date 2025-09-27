@@ -38,7 +38,9 @@
                       VirtualizingStackPanel.IsVirtualizing="True"
                       VirtualizingStackPanel.VirtualizationMode="Recycling">
                 <TreeView.ItemContainerStyle>
-                    <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}"/>
+                    <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                        <EventSetter Event="Expanded" Handler="TreeViewItem_Expanded"/>
+                    </Style>
                 </TreeView.ItemContainerStyle>
                 <TreeView.Resources>
                     <!-- Template for Universe Items -->

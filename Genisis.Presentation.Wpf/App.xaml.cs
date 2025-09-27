@@ -111,11 +111,24 @@ public partial class App : System.Windows.Application
             {
                 try
                 {
-                    // Load AI models first (user might want to use AI features immediately)
-                    mainViewModel.AiViewModel.LoadModelsCommand.Execute(null);
+                    // Load universe data first (more critical for basic functionality)
+                    await mainWindow.Dispatcher.InvokeAsync(async () =>
+                    {
+                        await mainViewModel.LoadInitialDataAsync();
+                    });
 
-                    // Then load the universe data
-                    await mainViewModel.LoadInitialDataAsync();
+                    // Then try to load AI models (optional feature)
+                    try
+                    {
+                        await mainWindow.Dispatcher.InvokeAsync(async () =>
+                        {
+                            await LoadModelsAsync(mainViewModel.AiViewModel);
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning(ex, "Failed to load AI models. AI features may not be available.");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -131,6 +144,12 @@ public partial class App : System.Windows.Application
             Log.Fatal(ex, "Application failed to start correctly.");
             MessageBox.Show("A critical error occurred and the application must close. See logs for details.", "Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    private static async Task LoadModelsAsync(ViewModels.AIViewModel aiViewModel)
+    {
+        // Load models using the existing LoadModelsAsync method
+        await aiViewModel.LoadModelsAsync();
     }
 
     private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)

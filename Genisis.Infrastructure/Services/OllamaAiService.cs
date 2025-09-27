@@ -32,10 +32,14 @@ public class OllamaAiService : IAiService
 
         try
         {
-            var response = await _httpClient.GetAsync("/api/tags", cancellationToken);
+            // Set a reasonable timeout for the HTTP request
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(5)); // 5 second timeout
+
+            var response = await _httpClient.GetAsync("/api/tags", cts.Token);
             if (!response.IsSuccessStatusCode) return new List<string>();
 
-            var json = await response.Content.ReadFromJsonAsync<JsonObject>(cancellationToken: cancellationToken);
+            var json = await response.Content.ReadFromJsonAsync<JsonObject>(cancellationToken: cts.Token);
             var models = json?["models"]?.AsArray()
                 .Select(m => m?["name"]?.GetValue<string>() ?? "")
                 .Where(name => !string.IsNullOrEmpty(name))
@@ -46,8 +50,9 @@ public class OllamaAiService : IAiService
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Failed to get local Ollama models. Is Ollama running?");
-            return new List<string>(); // Return empty list on error
+            Log.Warning(ex, "Failed to get local Ollama models. Ollama may not be running. Continuing without AI features.");
+            _cachedModels = new List<string>(); // Cache empty list to avoid repeated attempts
+            return _cachedModels;
         }
     }
 

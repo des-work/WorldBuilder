@@ -55,7 +55,7 @@ public partial class AIViewModel : ViewModelBase
         ClearHistory(); // Clear history when context changes
     }
 
-    private async Task LoadModelsAsync()
+    public async Task LoadModelsAsync()
     {
         // Only load if we haven't loaded models before
         if (AvailableModels.Any()) return;

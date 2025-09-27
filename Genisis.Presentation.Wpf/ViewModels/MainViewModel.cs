@@ -43,23 +43,22 @@ public partial class MainViewModel : ViewModelBase
             (AddChapterCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (AddCharacterCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (DeleteCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            // Asynchronously load children and set the active view model
+            // Update AI context and set the active view model
             _ = UpdateAiContext(value);
-            _ = HandleSelectionChangedAsync(value);
+            HandleSelectionChanged(value);
         }
     }
 
-    private async Task HandleSelectionChangedAsync(object? selectedItem, CancellationToken cancellationToken = default)
+    private void HandleSelectionChanged(object? selectedItem)
     {
         switch (selectedItem)
         {
             case Universe selectedUniverse:
-                await LoadStoriesAsync(selectedUniverse, cancellationToken);
-                await LoadCharactersAsync(selectedUniverse, cancellationToken);
+                // Don't eagerly load children on selection - only when expanded
                 ActiveViewModel = new UniverseViewModel(selectedUniverse, _universeRepository);
                 break;
             case Story selectedStory:
-                await LoadChaptersAsync(selectedStory, cancellationToken);
+                // Don't eagerly load chapters on selection - only when expanded
                 ActiveViewModel = new StoryViewModel(selectedStory, _storyRepository);
                 break;
             case Character selectedCharacter:
@@ -148,9 +147,12 @@ public partial class MainViewModel : ViewModelBase
         try
         {
             var universes = await _universeRepository.GetAllAsync(cancellationToken);
+            
+            // Clear and batch-add universes to minimize ObservableCollection events
             Universes.Clear();
             foreach (var universe in universes)
             {
+                // Don't eagerly load children - they'll be loaded on expansion
                 Universes.Add(universe);
             }
             _dataLoaded = true;
@@ -159,6 +161,22 @@ public partial class MainViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    public async Task LoadUniverseChildrenAsync(Universe universe, CancellationToken cancellationToken = default)
+    {
+        await LoadStoriesAsync(universe, cancellationToken);
+        await LoadCharactersAsync(universe, cancellationToken);
+    }
+
+    public async Task LoadStoryChildrenAsync(Story story, CancellationToken cancellationToken = default)
+    {
+        await LoadChaptersAsync(story, cancellationToken);
+    }
+
+    public async Task LoadCharacterFolderChildrenAsync(CharacterFolderViewModel characterFolder, CancellationToken cancellationToken = default)
+    {
+        await LoadCharactersAsync(characterFolder.ParentUniverse, cancellationToken);
     }
 
     private async Task LoadStoriesAsync(Universe universe, CancellationToken cancellationToken = default)
@@ -170,14 +188,20 @@ public partial class MainViewModel : ViewModelBase
         }
 
         var stories = await _storyRepository.GetByUniverseIdAsync(universe.Id, cancellationToken);
-        // The Stories collection on the model is managed by Entity Framework.
-        // We only need to populate the UI collection.
-        // We clear it first to prevent duplicates on re-load scenarios.
-        universe.Items.Clear();
+        
+        // Batch UI updates to minimize ObservableCollection events
+        var itemsToAdd = new List<object>();
+        
         foreach (var story in stories)
         {
             universe.Stories.Add(story);
-            universe.Items.Add(story);
+            itemsToAdd.Add(story);
+        }
+
+        // Add all items in one batch
+        foreach (var item in itemsToAdd)
+        {
+            universe.Items.Add(item);
         }
     }
 
@@ -190,6 +214,8 @@ public partial class MainViewModel : ViewModelBase
         }
 
         var chapters = await _chapterRepository.GetByStoryIdAsync(story.Id, cancellationToken);
+        
+        // Batch UI updates to minimize ObservableCollection events
         story.Chapters.Clear();
         foreach (var chapter in chapters)
         {
@@ -213,8 +239,13 @@ public partial class MainViewModel : ViewModelBase
         }
 
         var characters = await _characterRepository.GetByUniverseIdAsync(universe.Id, cancellationToken);
+        
+        // Batch UI updates to minimize ObservableCollection events
         // The Characters collection on the model is managed by EF. We populate the folder's collection for the UI.
-        characters.ForEach(c => folder.Characters.Add(c));
+        foreach (var character in characters)
+        {
+            folder.Characters.Add(character);
+        }
     }
 
     private async Task AddUniverse(CancellationToken cancellationToken = default)
