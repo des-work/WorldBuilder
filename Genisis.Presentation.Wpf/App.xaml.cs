@@ -89,9 +89,9 @@ public partial class App : Application
             using var scope = _host.Services.CreateScope();
             var services = scope.ServiceProvider;
 
-            // Get the DbContext instance and ensure the database is created
+            // Get the DbContext instance and migrate the database
             var dbContext = services.GetRequiredService<GenesisDbContext>();
-            await dbContext.Database.EnsureCreatedAsync();
+            await dbContext.Database.MigrateAsync();
 
             // Seed the database with initial data if it's empty
             var seeder = services.GetRequiredService<DataSeeder>();

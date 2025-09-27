@@ -2,6 +2,7 @@ using Genisis.Core.Models;
 using Genisis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace Genisis.Infrastructure.Repositories;
 
@@ -16,39 +17,46 @@ public class CharacterRepository : ICharacterRepository
         _logger = logger;
     }
 
-    public async Task<Character> AddAsync(Character entity)
+    public async Task<Character> AddAsync(Character entity, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Adding new Character: {CharacterName}", entity.Name);
-        await _dbContext.Characters.AddAsync(entity);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.Characters.AddAsync(entity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
         return entity;
     }
 
-    public Task<List<Character>> GetAllAsync()
+    public Task<List<Character>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return _dbContext.Characters.ToListAsync();
+        return _dbContext.Characters
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
-    public Task<Character?> GetByIdAsync(int id)
+    public Task<Character?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Characters.FindAsync(id).AsTask();
+        return _dbContext.Characters
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 
-    public Task<List<Character>> GetByUniverseIdAsync(int universeId)
+    public Task<List<Character>> GetByUniverseIdAsync(int universeId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Getting all characters for UniverseId: {UniverseId}", universeId);
-        return _dbContext.Characters.Where(c => c.UniverseId == universeId).ToListAsync();
+        return _dbContext.Characters
+            .AsNoTracking()
+            .Where(c => c.UniverseId == universeId)
+            .ToListAsync(cancellationToken);
     }
 
-    public Task UpdateAsync(Character entity)
+    public Task UpdateAsync(Character entity, CancellationToken cancellationToken = default)
     {
         _dbContext.Characters.Update(entity);
-        return _dbContext.SaveChangesAsync();
+        return _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task DeleteAsync(Character entity)
+    public Task DeleteAsync(Character entity, CancellationToken cancellationToken = default)
     {
         _dbContext.Characters.Remove(entity);
-        return _dbContext.SaveChangesAsync();
+        return _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
 namespace Genisis.Core.Models;
@@ -14,15 +15,20 @@ public class Character : INotifyPropertyChanged
 {
     public int Id { get; set; }
 
+    [Required]
+    [StringLength(200)]
     private string _name = string.Empty;
     public string Name { get => _name; set { _name = value; OnPropertyChanged(); } }
 
+    [Required]
     private CharacterTier _tier;
     public CharacterTier Tier { get => _tier; set { _tier = value; OnPropertyChanged(); } }
 
+    [StringLength(5000)]
     private string? _bio;
     public string? Bio { get => _bio; set { _bio = value; OnPropertyChanged(); } }
 
+    [StringLength(2000)]
     private string? _notes;
     public string? Notes { get => _notes; set { _notes = value; OnPropertyChanged(); } }
 

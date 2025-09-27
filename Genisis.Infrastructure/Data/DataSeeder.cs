@@ -2,6 +2,7 @@ using Genisis.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Genisis.Infrastructure.Data;
@@ -15,10 +16,10 @@ public class DataSeeder
         _dbContext = dbContext;
     }
 
-    public async Task SeedAsync()
+    public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         // Check if data already exists to prevent re-seeding
-        if (await _dbContext.Universes.AnyAsync())
+        if (await _dbContext.Universes.AnyAsync(cancellationToken))
         {
             return; // Database has already been seeded
         }
@@ -37,6 +38,6 @@ public class DataSeeder
         };
 
         _dbContext.Universes.Add(sampleUniverse);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

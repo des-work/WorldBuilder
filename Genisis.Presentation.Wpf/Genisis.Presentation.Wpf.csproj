@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
     <AssemblyName>Genisis.Presentation.Wpf</AssemblyName>
     <RootNamespace>Genisis.Presentation.Wpf</RootNamespace>
     <ApplicationIcon>app.ico</ApplicationIcon>

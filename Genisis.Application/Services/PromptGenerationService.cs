@@ -2,6 +2,7 @@ using Genisis.Core.Models;
 using Genisis.Core.Repositories;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Genisis.Application.Services;
@@ -27,7 +28,7 @@ public class PromptGenerationService : IPromptGenerationService
         return $"You are a world-building assistant. Your knowledge is based on the following context about the story '{story.Name}'. Answer the user's questions based on this information.\n\nCONTEXT:\nStory Name: {story.Name}\nLogline: {story.Logline}";
     }
 
-    public async Task<string> GenerateCharacterPromptAsync(Character character)
+    public async Task<string> GenerateCharacterPromptAsync(Character character, CancellationToken cancellationToken = default)
     {
         var sb = new StringBuilder();
         sb.AppendLine($"You are to role-play as the character '{character.Name}'. Speak in their voice and embody their personality. Do not break character. Do not mention that you are an AI. Respond directly to the user's message as if you are {character.Name}.");
@@ -42,7 +43,7 @@ public class PromptGenerationService : IPromptGenerationService
         }
         sb.AppendLine("\n---");
 
-        var parentUniverse = await _universeRepository.GetByIdAsync(character.UniverseId);
+        var parentUniverse = await _universeRepository.GetByIdAsync(character.UniverseId, cancellationToken);
         if (parentUniverse != null)
         {
             sb.AppendLine("WORLD KNOWLEDGE (The universe you live in):");
@@ -51,7 +52,7 @@ public class PromptGenerationService : IPromptGenerationService
         }
 
         // Find all chapters this character appears in to provide event context.
-        var chapters = await _chapterRepository.GetByCharacterIdAsync(character.Id);
+        var chapters = await _chapterRepository.GetByCharacterIdAsync(character.Id, cancellationToken);
         if (chapters.Any())
         {
             sb.AppendLine("RECENT EVENTS (Things you have experienced or are aware of):");

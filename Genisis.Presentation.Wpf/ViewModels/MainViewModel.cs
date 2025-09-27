@@ -40,17 +40,17 @@ public class MainViewModel : ViewModelBase
         }
     }
 
-    private async Task HandleSelectionChangedAsync(object? selectedItem)
+    private async Task HandleSelectionChangedAsync(object? selectedItem, CancellationToken cancellationToken = default)
     {
         switch (selectedItem)
         {
             case Universe selectedUniverse:
-                await LoadStoriesAsync(selectedUniverse);
-                await LoadCharactersAsync(selectedUniverse);
+                await LoadStoriesAsync(selectedUniverse, cancellationToken);
+                await LoadCharactersAsync(selectedUniverse, cancellationToken);
                 ActiveViewModel = new UniverseViewModel(selectedUniverse, _universeRepository);
                 break;
             case Story selectedStory:
-                await LoadChaptersAsync(selectedStory);
+                await LoadChaptersAsync(selectedStory, cancellationToken);
                 ActiveViewModel = new StoryViewModel(selectedStory, _storyRepository);
                 break;
             case Character selectedCharacter:
@@ -104,7 +104,7 @@ public class MainViewModel : ViewModelBase
         DeleteCommand = new RelayCommand(async _ => await DeleteSelectedItemAsync(), _ => SelectedItem is not null);
     }
 
-    private async Task UpdateAiContext(object? selectedItem)
+    private async Task UpdateAiContext(object? selectedItem, CancellationToken cancellationToken = default)
     {
         string title;
         string systemPrompt;
@@ -113,7 +113,7 @@ public class MainViewModel : ViewModelBase
         {
             case Universe u: title = "Ask Your Universe"; systemPrompt = _promptGenerationService.GenerateUniversePrompt(u); break;
             case Story s: title = $"Ask About '{s.Name}'"; systemPrompt = _promptGenerationService.GenerateStoryPrompt(s); break;
-            case Character ch: title = $"Speak with {ch.Name}"; systemPrompt = await _promptGenerationService.GenerateCharacterPromptAsync(ch); break;
+            case Character ch: title = $"Speak with {ch.Name}"; systemPrompt = await _promptGenerationService.GenerateCharacterPromptAsync(ch, cancellationToken); break;
             default:
                 title = "Ask Your Universe";
                 systemPrompt = "You are a helpful AI assistant. There is no specific item selected, so you have no context about the user's world.";
@@ -123,9 +123,9 @@ public class MainViewModel : ViewModelBase
         AiViewModel.UpdateInteraction(title, systemPrompt);
     }
 
-    public async Task LoadInitialDataAsync()
+    public async Task LoadInitialDataAsync(CancellationToken cancellationToken = default)
     {
-        var universes = await _universeRepository.GetAllAsync();
+        var universes = await _universeRepository.GetAllAsync(cancellationToken);
         Universes.Clear();
         foreach (var universe in universes)
         {
@@ -133,7 +133,7 @@ public class MainViewModel : ViewModelBase
         }
     }
 
-    private async Task LoadStoriesAsync(Universe universe)
+    private async Task LoadStoriesAsync(Universe universe, CancellationToken cancellationToken = default)
     {
         // Only load if the stories haven't been loaded yet.
         if (universe.Items.OfType<Story>().Any())
@@ -141,7 +141,7 @@ public class MainViewModel : ViewModelBase
             return;
         }
 
-        var stories = await _storyRepository.GetByUniverseIdAsync(universe.Id);
+        var stories = await _storyRepository.GetByUniverseIdAsync(universe.Id, cancellationToken);
         // The Stories collection on the model is managed by Entity Framework.
         // We only need to populate the UI collection.
         // We clear it first to prevent duplicates on re-load scenarios.
@@ -153,7 +153,7 @@ public class MainViewModel : ViewModelBase
         }
     }
 
-    private async Task LoadChaptersAsync(Story story)
+    private async Task LoadChaptersAsync(Story story, CancellationToken cancellationToken = default)
     {
         // Only load if chapters haven't been loaded yet.
         if (story.Chapters.Any())
@@ -161,7 +161,7 @@ public class MainViewModel : ViewModelBase
             return;
         }
 
-        var chapters = await _chapterRepository.GetByStoryIdAsync(story.Id);
+        var chapters = await _chapterRepository.GetByStoryIdAsync(story.Id, cancellationToken);
         story.Chapters.Clear();
         foreach (var chapter in chapters)
         {
@@ -169,7 +169,7 @@ public class MainViewModel : ViewModelBase
         }
     }
 
-    private async Task LoadCharactersAsync(Universe universe)
+    private async Task LoadCharactersAsync(Universe universe, CancellationToken cancellationToken = default)
     {
         var folder = universe.Items.OfType<CharacterFolderViewModel>().FirstOrDefault();
         if (folder is null)
@@ -184,46 +184,46 @@ public class MainViewModel : ViewModelBase
             return;
         }
 
-        var characters = await _characterRepository.GetByUniverseIdAsync(universe.Id);
+        var characters = await _characterRepository.GetByUniverseIdAsync(universe.Id, cancellationToken);
         // The Characters collection on the model is managed by EF. We populate the folder's collection for the UI.
         characters.ForEach(c => folder.Characters.Add(c));
     }
 
-    private async Task AddUniverse()
+    private async Task AddUniverse(CancellationToken cancellationToken = default)
     {
         if (_dialogService.ShowInputDialog("Enter the name for the new universe:", "New Universe", out var universeName))
         {
             var newUniverse = new Universe { Name = universeName };
-            var addedUniverse = await _universeRepository.AddAsync(newUniverse);
+            var addedUniverse = await _universeRepository.AddAsync(newUniverse, cancellationToken);
             Universes.Add(addedUniverse);
             SelectedItem = addedUniverse; // Select the new item
         }
     }
 
-    private async Task AddStory()
+    private async Task AddStory(CancellationToken cancellationToken = default)
     {
         if (SelectedItem is Universe parentUniverse &&
             _dialogService.ShowInputDialog($"Enter the name for the new story in '{parentUniverse.Name}':", "New Story", out var storyName))
         {
             var newStory = new Story { Name = storyName, UniverseId = parentUniverse.Id };
-            var addedStory = await _storyRepository.AddAsync(newStory);
+            var addedStory = await _storyRepository.AddAsync(newStory, cancellationToken);
             parentUniverse.Items.Add(addedStory);
         }
     }
 
-    private async Task AddChapter()
+    private async Task AddChapter(CancellationToken cancellationToken = default)
     {
         if (SelectedItem is Story parentStory &&
             _dialogService.ShowInputDialog($"Enter the title for the new chapter in '{parentStory.Name}':", "New Chapter", out var chapterTitle))
         {
             var newChapter = new Chapter { Title = chapterTitle, StoryId = parentStory.Id };
             newChapter.ChapterOrder = (parentStory.Chapters.Any() ? parentStory.Chapters.Max(c => c.ChapterOrder) : 0) + 1;
-            var addedChapter = await _chapterRepository.AddAsync(newChapter);
+            var addedChapter = await _chapterRepository.AddAsync(newChapter, cancellationToken);
             parentStory.Chapters.Add(addedChapter);
         }
     }
 
-    private async Task AddCharacter()
+    private async Task AddCharacter(CancellationToken cancellationToken = default)
     {
         Universe? parentUniverse = SelectedItem switch
         {
@@ -236,7 +236,7 @@ public class MainViewModel : ViewModelBase
             _dialogService.ShowInputDialog($"Enter the name for the new character in '{parentUniverse.Name}':", "New Character", out var characterName))
         {
             var newCharacter = new Character { Name = characterName, UniverseId = parentUniverse.Id };
-            var addedCharacter = await _characterRepository.AddAsync(newCharacter);
+            var addedCharacter = await _characterRepository.AddAsync(newCharacter, cancellationToken);
 
             var folder = parentUniverse.Items.OfType<CharacterFolderViewModel>().FirstOrDefault();
             if (folder != null)
@@ -246,7 +246,7 @@ public class MainViewModel : ViewModelBase
         }
     }
 
-    private async Task DeleteSelectedItemAsync()
+    private async Task DeleteSelectedItemAsync(CancellationToken cancellationToken = default)
     {
         if (SelectedItem is null) return;
 
@@ -273,21 +273,21 @@ public class MainViewModel : ViewModelBase
         switch (SelectedItem)
         {
             case Universe universe:
-                await _universeRepository.DeleteAsync(universe);
+                await _universeRepository.DeleteAsync(universe, cancellationToken);
                 Universes.Remove(universe);
                 break;
             case Story story:
-                await _storyRepository.DeleteAsync(story);
+                await _storyRepository.DeleteAsync(story, cancellationToken);
                 var parentUniverse = Universes.FirstOrDefault(u => u.Id == story.UniverseId);
                 parentUniverse?.Items.Remove(story);
                 break;
             case Chapter chapter:
-                await _chapterRepository.DeleteAsync(chapter);
+                await _chapterRepository.DeleteAsync(chapter, cancellationToken);
                 var parentStory = Universes.SelectMany(u => u.Stories).FirstOrDefault(s => s.Id == chapter.StoryId);
                 parentStory?.Chapters.Remove(chapter);
                 break;
             case Character character:
-                await _characterRepository.DeleteAsync(character);
+                await _characterRepository.DeleteAsync(character, cancellationToken);
                 var characterParentUniverse = Universes.FirstOrDefault(u => u.Id == character.UniverseId);
                 var characterFolder = characterParentUniverse?.Items.OfType<CharacterFolderViewModel>().FirstOrDefault();
                 characterFolder?.Characters.Remove(character);
