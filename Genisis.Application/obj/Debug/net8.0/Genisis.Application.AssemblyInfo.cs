@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Genisis.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4980235bf1c84b0107dd2cadc1b384adc2e7b1b0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3fdea5b9b5ad8e62cb1c1141609b913f9ca6178f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Genisis.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Genisis.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

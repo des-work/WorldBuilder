@@ -24,13 +24,13 @@ public partial class App : System.Windows.Application
 
     public App()
     {
-        // Configure Serilog for logging
+        // Configure Serilog for logging with async sinks
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Debug() // Writes to Visual Studio's Debug output window
-            .WriteTo.File(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            .WriteTo.Debug() // Writes to Visual Studio's Debug output window (synchronous but fast)
+            .WriteTo.Async(a => a.File(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                                        "WorldBuilderAI", "Logs", "log-.txt"),
-                          rollingInterval: RollingInterval.Day) // Creates a new log file each day
+                          rollingInterval: RollingInterval.Day)) // Async file sink to prevent blocking
             .CreateLogger();
 
         _host = Host.CreateDefaultBuilder()
@@ -82,52 +82,66 @@ public partial class App : System.Windows.Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        var startupTimer = System.Diagnostics.Stopwatch.StartNew();
+
         try
         {
+            Log.Information("Starting application startup");
+
+            var hostTimer = System.Diagnostics.Stopwatch.StartNew();
             await _host.StartAsync();
+            hostTimer.Stop();
+            Log.Information("Host startup took {Elapsed}ms", hostTimer.ElapsedMilliseconds);
 
             // Use a scope to resolve services, which is best practice
             using var scope = _host.Services.CreateScope();
             var services = scope.ServiceProvider;
 
-            // Get the DbContext instance and migrate the database (fast operation)
-            var dbContext = services.GetRequiredService<GenesisDbContext>();
-            await dbContext.Database.MigrateAsync().ConfigureAwait(false);
-
-            // Seed the database with initial data if it's empty (can be done lazily)
-            var seeder = services.GetRequiredService<DataSeeder>();
-            await seeder.SeedAsync().ConfigureAwait(false);
+            var serviceTimer = System.Diagnostics.Stopwatch.StartNew();
 
             // Get the main view model and show the UI immediately
             var mainViewModel = services.GetRequiredService<MainViewModel>();
             var mainWindow = services.GetRequiredService<MainWindow>();
             mainWindow.DataContext = mainViewModel; // Set the DataContext
 
+            serviceTimer.Stop();
+            Log.Information("Service resolution took {Elapsed}ms", serviceTimer.ElapsedMilliseconds);
+
+            var windowTimer = System.Diagnostics.Stopwatch.StartNew();
             // Show the window immediately for faster perceived startup
             mainWindow.Show();
+            windowTimer.Stop();
+            Log.Information("Window show took {Elapsed}ms", windowTimer.ElapsedMilliseconds);
 
-            // Load initial data and AI models asynchronously in the background
+            // Load everything else asynchronously in the background
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    // Load universe data first (more critical for basic functionality)
+                    var dataTimer = System.Diagnostics.Stopwatch.StartNew();
+                    // Load universe data first (critical for basic functionality)
                     await mainWindow.Dispatcher.InvokeAsync(async () =>
                     {
                         await mainViewModel.LoadInitialDataAsync();
                     });
+                    dataTimer.Stop();
+                    Log.Information("Initial data loading took {Elapsed}ms", dataTimer.ElapsedMilliseconds);
 
-                    // Then try to load AI models (optional feature)
+                    // Database migration and seeding in background (optional)
                     try
                     {
-                        await mainWindow.Dispatcher.InvokeAsync(async () =>
-                        {
-                            await LoadModelsAsync(mainViewModel.AiViewModel);
-                        });
+                        var dbTimer = System.Diagnostics.Stopwatch.StartNew();
+                        var dbContext = services.GetRequiredService<GenesisDbContext>();
+                        await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+
+                        var seeder = services.GetRequiredService<DataSeeder>();
+                        await seeder.SeedAsync().ConfigureAwait(false);
+                        dbTimer.Stop();
+                        Log.Information("Database migration and seeding took {Elapsed}ms", dbTimer.ElapsedMilliseconds);
                     }
                     catch (Exception ex)
                     {
-                        Log.Warning(ex, "Failed to load AI models. AI features may not be available.");
+                        Log.Warning(ex, "Database migration/seeding failed but app continues");
                     }
                 }
                 catch (Exception ex)
@@ -137,11 +151,15 @@ public partial class App : System.Windows.Application
                 }
             });
 
+            startupTimer.Stop();
+            Log.Information("Total startup took {Elapsed}ms", startupTimer.ElapsedMilliseconds);
+
             base.OnStartup(e);
         }
         catch (Exception ex)
         {
-            Log.Fatal(ex, "Application failed to start correctly.");
+            startupTimer.Stop();
+            Log.Fatal(ex, "Application failed to start correctly after {Elapsed}ms", startupTimer.ElapsedMilliseconds);
             MessageBox.Show("A critical error occurred and the application must close. See logs for details.", "Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }

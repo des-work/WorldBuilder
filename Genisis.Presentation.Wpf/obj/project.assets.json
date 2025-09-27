@@ -1125,6 +1125,22 @@
           }
         }
       },
+      "Serilog.Sinks.Async/1.5.0": {
+        "type": "package",
+        "dependencies": {
+          "Serilog": "2.9.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Serilog.Sinks.Async.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/Serilog.Sinks.Async.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Serilog.Sinks.Debug/2.0.0": {
         "type": "package",
         "dependencies": {
@@ -3334,6 +3350,26 @@
         "serilog.extensions.logging.nuspec"
       ]
     },
+    "Serilog.Sinks.Async/1.5.0": {
+      "sha512": "csHYIqAwI4Gy9oAhXYRwxGrQEAtBg3Ep7WaCzsnA1cZuBZjVAU0n7hWaJhItjO7hbLHh/9gRVxALCUB4Dv+gZw==",
+      "type": "package",
+      "path": "serilog.sinks.async/1.5.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net45/Serilog.Sinks.Async.dll",
+        "lib/net45/Serilog.Sinks.Async.xml",
+        "lib/net461/Serilog.Sinks.Async.dll",
+        "lib/net461/Serilog.Sinks.Async.xml",
+        "lib/netstandard1.1/Serilog.Sinks.Async.dll",
+        "lib/netstandard1.1/Serilog.Sinks.Async.xml",
+        "lib/netstandard2.0/Serilog.Sinks.Async.dll",
+        "lib/netstandard2.0/Serilog.Sinks.Async.xml",
+        "serilog-sink-nuget.png",
+        "serilog.sinks.async.1.5.0.nupkg.sha512",
+        "serilog.sinks.async.nuspec"
+      ]
+    },
     "Serilog.Sinks.Debug/2.0.0": {
       "sha512": "Y6g3OBJ4JzTyyw16fDqtFcQ41qQAydnEvEqmXjhwhgjsnG/FaJ8GUqF5ldsC/bVkK8KYmqrPhDO+tm4dF6xx4A==",
       "type": "package",
@@ -4010,6 +4046,7 @@
       "Microsoft.Extensions.Hosting >= 8.0.0",
       "Serilog >= 3.1.1",
       "Serilog.Extensions.Hosting >= 8.0.0",
+      "Serilog.Sinks.Async >= 1.5.0",
       "Serilog.Sinks.Debug >= 2.0.0",
       "Serilog.Sinks.File >= 5.0.0"
     ]
@@ -4085,6 +4122,10 @@
           "Serilog.Extensions.Hosting": {
             "target": "Package",
             "version": "[8.0.0, )"
+          },
+          "Serilog.Sinks.Async": {
+            "target": "Package",
+            "version": "[1.5.0, )"
           },
           "Serilog.Sinks.Debug": {
             "target": "Package",
