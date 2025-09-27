@@ -12,6 +12,7 @@
           "Genisis.Application": "1.0.0",
           "Genisis.Core": "1.0.0",
           "Genisis.Infrastructure": "1.0.0",
+          "Microsoft.Extensions.Caching.Memory": "8.0.0",
           "Microsoft.Extensions.DependencyInjection": "8.0.0",
           "Microsoft.Extensions.Hosting": "8.0.0",
           "Serilog": "3.1.1",

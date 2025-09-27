@@ -37,6 +37,7 @@ public class CharacterRepository : ICharacterRepository
     {
         return _dbContext.Characters
             .AsNoTracking()
+            .Include(c => c.Chapters)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 
@@ -45,6 +46,7 @@ public class CharacterRepository : ICharacterRepository
         _logger.LogInformation("Getting all characters for UniverseId: {UniverseId}", universeId);
         return _dbContext.Characters
             .AsNoTracking()
+            .Include(c => c.Chapters)
             .Where(c => c.UniverseId == universeId)
             .ToListAsync(cancellationToken);
     }

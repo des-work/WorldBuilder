@@ -4042,6 +4042,7 @@
       "Genisis.Application >= 1.0.0",
       "Genisis.Core >= 1.0.0",
       "Genisis.Infrastructure >= 1.0.0",
+      "Microsoft.Extensions.Caching.Memory >= 8.0.0",
       "Microsoft.Extensions.DependencyInjection >= 8.0.0",
       "Microsoft.Extensions.Hosting >= 8.0.0",
       "Serilog >= 3.1.1",
@@ -4107,6 +4108,10 @@
             "target": "Package",
             "version": "[8.2.2, )"
           },
+          "Microsoft.Extensions.Caching.Memory": {
+            "target": "Package",
+            "version": "[8.0.0, )"
+          },
           "Microsoft.Extensions.DependencyInjection": {
             "target": "Package",
             "version": "[8.0.0, )"
@@ -4158,5 +4163,17 @@
         "runtimeIdentifierGraphPath": "C:\\Users\\desmo\\.dotnet\\sdk\\8.0.414/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'Microsoft.Extensions.Caching.Memory' 8.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-qj66-m88j-hmgj",
+      "libraryId": "Microsoft.Extensions.Caching.Memory",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    }
+  ]
 }

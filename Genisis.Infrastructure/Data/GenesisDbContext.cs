@@ -1,5 +1,6 @@
 using Genisis.Core.Models;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace Genisis.Infrastructure.Data;
 
@@ -11,6 +12,14 @@ public class GenesisDbContext : DbContext
     public DbSet<Chapter> Chapters { get; set; }
 
     public GenesisDbContext(DbContextOptions<GenesisDbContext> options) : base(options) { }
+
+    // Design-time factory for EF Core tools
+    public static GenesisDbContext CreateForDesignTime()
+    {
+        var builder = new DbContextOptionsBuilder<GenesisDbContext>();
+        builder.UseSqlite($"Data Source={Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WorldBuilderAI", "worldbuilder.db")}");
+        return new GenesisDbContext(builder.Options);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
