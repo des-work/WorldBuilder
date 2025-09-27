@@ -1,0 +1,35 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/publish/
+**/TestResults/
+
+# VS/VSCode
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# Logs and local data
+**/Logs/
+*.log
+app_output.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# EF Core
+Migrations/**/_*_Backup.cs
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+.nuget/
+
+# Tool manifests
+.config/dotnet-tools.json
+
