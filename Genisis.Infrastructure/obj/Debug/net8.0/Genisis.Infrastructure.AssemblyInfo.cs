@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Genisis.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3fdea5b9b5ad8e62cb1c1141609b913f9ca6178f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e2d1f9435d2e471c46036fb1e12af6c635cff27f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Genisis.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Genisis.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -11,24 +11,29 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Genisis.Infrastructure.Services;
 
 public class OllamaAiService : IAiService
 {
     private readonly HttpClient _httpClient;
-    private List<string>? _cachedModels;
+    private readonly IMemoryCache _cache;
+    private const string ModelsCacheKey = "ollama_models";
 
-    public OllamaAiService()
+    public OllamaAiService(IMemoryCache cache)
     {
         _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:11434") };
+        _cache = cache;
     }
 
     public async Task<List<string>> GetLocalModelsAsync(CancellationToken cancellationToken = default)
     {
-        // Return cached models if available
-        if (_cachedModels != null)
-            return _cachedModels;
+        // Try to get from memory cache first
+        if (_cache.TryGetValue(ModelsCacheKey, out List<string>? cachedModels))
+        {
+            return cachedModels ?? new List<string>();
+        }
 
         try
         {
@@ -45,20 +50,28 @@ public class OllamaAiService : IAiService
                 .Where(name => !string.IsNullOrEmpty(name))
                 .ToList();
 
-            _cachedModels = models ?? new List<string>();
-            return _cachedModels;
+            var result = models ?? new List<string>();
+
+            // Cache the result for 30 minutes (or until manually cleared)
+            _cache.Set(ModelsCacheKey, result, TimeSpan.FromMinutes(30));
+
+            return result;
         }
         catch (Exception ex)
         {
             Log.Warning(ex, "Failed to get local Ollama models. Ollama may not be running. Continuing without AI features.");
-            _cachedModels = new List<string>(); // Cache empty list to avoid repeated attempts
-            return _cachedModels;
+
+            // Cache empty list for 5 minutes to avoid repeated failed attempts
+            var emptyResult = new List<string>();
+            _cache.Set(ModelsCacheKey, emptyResult, TimeSpan.FromMinutes(5));
+
+            return emptyResult;
         }
     }
 
     public void ClearModelCache()
     {
-        _cachedModels = null;
+        _cache.Remove(ModelsCacheKey);
     }
 
     public async IAsyncEnumerable<string> StreamCompletionAsync(string model, string prompt, [EnumeratorCancellation] CancellationToken cancellationToken = default)

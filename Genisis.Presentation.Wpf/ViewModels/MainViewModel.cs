@@ -29,6 +29,16 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private string _searchText = string.Empty;
+
+    public ObservableCollection<Universe> FilteredUniverses { get; } = new();
+
+    partial void OnSearchTextChanged(string value)
+    {
+        UpdateFilteredUniverses();
+    }
+
     private object? _selectedItem;
     public object? SelectedItem
     {
@@ -94,6 +104,7 @@ public partial class MainViewModel : ViewModelBase
     public IAsyncRelayCommand AddChapterCommand { get; }
     public IAsyncRelayCommand AddCharacterCommand { get; }
     public IAsyncRelayCommand DeleteCommand { get; }
+    public IRelayCommand ClearSearchCommand { get; }
 
     public MainViewModel(IUniverseRepository universeRepository, IStoryRepository storyRepository, IChapterRepository chapterRepository, ICharacterRepository characterRepository, AIViewModel aiViewModel, IPromptGenerationService promptGenerationService, IDialogService dialogService)
     {
@@ -110,6 +121,7 @@ public partial class MainViewModel : ViewModelBase
         AddChapterCommand = new AsyncRelayCommand(AddChapter, CanAddChapter);
         AddCharacterCommand = new AsyncRelayCommand(AddCharacter, CanAddCharacter);
         DeleteCommand = new AsyncRelayCommand(DeleteSelectedItemAsync, CanDelete);
+        ClearSearchCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ClearSearch);
     }
 
     private bool CanAddStory() => SelectedItem is Universe;
@@ -147,14 +159,20 @@ public partial class MainViewModel : ViewModelBase
         try
         {
             var universes = await _universeRepository.GetAllAsync(cancellationToken);
-            
+
             // Clear and batch-add universes to minimize ObservableCollection events
             Universes.Clear();
+            FilteredUniverses.Clear();
+
             foreach (var universe in universes)
             {
                 // Don't eagerly load children - they'll be loaded on expansion
                 Universes.Add(universe);
             }
+
+            // Initially, filtered collection shows all universes
+            UpdateFilteredUniverses();
+
             _dataLoaded = true;
         }
         finally
@@ -355,5 +373,36 @@ public partial class MainViewModel : ViewModelBase
 
         // Clear the selection after deletion
         SelectedItem = null;
+    }
+
+    private void ClearSearch()
+    {
+        SearchText = string.Empty;
+    }
+
+    private void UpdateFilteredUniverses()
+    {
+        FilteredUniverses.Clear();
+
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            // Show all universes
+            foreach (var universe in Universes)
+            {
+                FilteredUniverses.Add(universe);
+            }
+        }
+        else
+        {
+            // Filter universes by name
+            var searchTerm = SearchText.ToLower();
+            foreach (var universe in Universes)
+            {
+                if (universe.Name.ToLower().Contains(searchTerm))
+                {
+                    FilteredUniverses.Add(universe);
+                }
+            }
+        }
     }
 }

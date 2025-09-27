@@ -32,9 +32,20 @@
                     Command="{Binding AddUniverseCommand}"
                     Background="{StaticResource AccentGreen}" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
 
+            <!-- Search Box -->
+            <TextBox DockPanel.Dock="Top" Margin="10,5,10,10" Padding="8,5"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     Background="#3C3C3C" Foreground="{StaticResource PrimaryText}"
+                     BorderBrush="#555555" BorderThickness="1"
+                     Style="{StaticResource SearchTextBoxStyle}">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding ClearSearchCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
+
             <TreeView x:Name="MainTreeView" Background="Transparent" BorderThickness="0"
                       SelectedItemChanged="MainTreeView_SelectedItemChanged"
-                      ItemsSource="{Binding Universes}"
+                      ItemsSource="{Binding FilteredUniverses}"
                       VirtualizingStackPanel.IsVirtualizing="True"
                       VirtualizingStackPanel.VirtualizationMode="Recycling">
                 <TreeView.ItemContainerStyle>

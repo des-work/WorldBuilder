@@ -51,9 +51,19 @@ public partial class App : System.Windows.Application
         var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WorldBuilderAI", "worldbuilder.db");
         Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
 
-        // Register the DbContext for Dependency Injection
+        // Register the DbContext for Dependency Injection with optimized settings
         services.AddDbContext<GenesisDbContext>(options =>
-            options.UseSqlite($"Data Source={dbPath}"));
+        {
+            options.UseSqlite($"Data Source={dbPath}", sqliteOptions =>
+            {
+                sqliteOptions.CommandTimeout(30); // Increase timeout for complex operations
+                sqliteOptions.MigrationsAssembly("Genisis.Infrastructure");
+            });
+
+            // Enable connection pooling and performance optimizations
+            options.EnableSensitiveDataLogging(false); // Disable in production
+            options.EnableDetailedErrors(false); // Disable in production
+        });
 
         // Register the Repository
         services.AddScoped<IUniverseRepository, UniverseRepository>();
@@ -65,6 +75,9 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IAiService, OllamaAiService>();
         services.AddScoped<IPromptGenerationService, PromptGenerationService>();
         services.AddScoped<IItemHandlerFactory, ItemHandlerFactory>();
+
+        // Register Memory Cache for performance optimization
+        services.AddMemoryCache();
 
         // Register the Data Seeder
         services.AddTransient<DataSeeder>();

@@ -1,0 +1,320 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Presentation.Wpf\\Genisis.Presentation.Wpf.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Application\\Genisis.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Application\\Genisis.Application.csproj",
+        "projectName": "Genisis.Application",
+        "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Application\\Genisis.Application.csproj",
+        "packagesPath": "C:\\Users\\desmo\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\desmo\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\Genisis.Core.csproj": {
+                "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\Genisis.Core.csproj"
+              },
+              "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Infrastructure\\Genisis.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Infrastructure\\Genisis.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Users\\desmo\\.dotnet\\sdk\\8.0.414/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\Genisis.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\Genisis.Core.csproj",
+        "projectName": "Genisis.Core",
+        "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\Genisis.Core.csproj",
+        "packagesPath": "C:\\Users\\desmo\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\desmo\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Users\\desmo\\.dotnet\\sdk\\8.0.414/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Infrastructure\\Genisis.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Infrastructure\\Genisis.Infrastructure.csproj",
+        "projectName": "Genisis.Infrastructure",
+        "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Infrastructure\\Genisis.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\desmo\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\desmo\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\Genisis.Core.csproj": {
+                "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\Genisis.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
+            "System.Text.Json": {
+              "target": "Package",
+              "version": "[8.0.5, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Users\\desmo\\.dotnet\\sdk\\8.0.414/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Presentation.Wpf\\Genisis.Presentation.Wpf.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Presentation.Wpf\\Genisis.Presentation.Wpf.csproj",
+        "projectName": "Genisis.Presentation.Wpf",
+        "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Presentation.Wpf\\Genisis.Presentation.Wpf.csproj",
+        "packagesPath": "C:\\Users\\desmo\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Presentation.Wpf\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\desmo\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows7.0": {
+            "targetAlias": "net8.0-windows",
+            "projectReferences": {
+              "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Application\\Genisis.Application.csproj": {
+                "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Application\\Genisis.Application.csproj"
+              },
+              "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\Genisis.Core.csproj": {
+                "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Core\\Genisis.Core.csproj"
+              },
+              "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Infrastructure\\Genisis.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\desmo\\OneDrive\\Consulting\\Trident Analytics\\WorldBuilder\\Genisis.Infrastructure\\Genisis.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
+          "dependencies": {
+            "CommunityToolkit.Mvvm": {
+              "target": "Package",
+              "version": "[8.2.2, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
+            "Serilog.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Serilog.Sinks.Async": {
+              "target": "Package",
+              "version": "[1.5.0, )"
+            },
+            "Serilog.Sinks.Debug": {
+              "target": "Package",
+              "version": "[2.0.0, )"
+            },
+            "Serilog.Sinks.File": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WPF": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Users\\desmo\\.dotnet\\sdk\\8.0.414/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
