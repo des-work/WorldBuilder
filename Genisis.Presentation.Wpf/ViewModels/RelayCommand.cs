@@ -1,37 +1,15 @@
-using System;
+using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
+
+// Re-export AsyncRelayCommand and RelayCommand for backward compatibility
+// New code should use CommunityToolkit.Mvvm.Input.AsyncRelayCommand directly
 
 namespace Genisis.Presentation.Wpf.ViewModels;
 
-public class RelayCommand : ICommand
+public class RelayCommand : RelayCommand<object?>
 {
-    private readonly Action<object?> _execute;
-    private readonly Predicate<object?>? _canExecute;
-
-    public event EventHandler? CanExecuteChanged
-    {
-        add => CommandManager.RequerySuggested += value;
-        remove => CommandManager.RequerySuggested -= value;
-    }
-
     public RelayCommand(Action<object?> execute, Predicate<object?>? canExecute = null)
+        : base(execute, canExecute)
     {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute;
-    }
-
-    public bool CanExecute(object? parameter)
-    {
-        return _canExecute is null || _canExecute(parameter);
-    }
-
-    public void Execute(object? parameter)
-    {
-        _execute(parameter);
-    }
-
-    public void RaiseCanExecuteChanged()
-    {
-        CommandManager.InvalidateRequerySuggested();
     }
 }

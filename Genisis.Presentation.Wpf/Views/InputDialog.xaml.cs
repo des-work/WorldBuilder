@@ -23,6 +23,9 @@ namespace Genisis.Presentation.Wpf.Views
             else
             {
                 MessageBox.Show("The field cannot be empty.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Keep focus on the text box for user to correct
+                ResponseTextBox.Focus();
+                ResponseTextBox.SelectAll();
             }
         }
 

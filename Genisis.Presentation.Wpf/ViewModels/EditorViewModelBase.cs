@@ -1,39 +1,38 @@
+using CommunityToolkit.Mvvm.Input;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Genisis.Presentation.Wpf.ViewModels;
 
-public abstract class EditorViewModelBase<TModel> : ViewModelBase where TModel : INotifyPropertyChanged
+public abstract partial class EditorViewModelBase<TModel> : ViewModelBase where TModel : INotifyPropertyChanged
 {
+    [ObservableProperty]
     private bool _isDirty;
-    public bool IsDirty
-    {
-        get => _isDirty;
-        set { _isDirty = value; OnPropertyChanged(); (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged(); }
-    }
 
+    [ObservableProperty]
     private bool _isSavedMessageVisible;
-    public bool IsSavedMessageVisible
-    {
-        get => _isSavedMessageVisible;
-        set { _isSavedMessageVisible = value; OnPropertyChanged(); }
-    }
 
-    public ICommand SaveCommand { get; }
+    public IAsyncRelayCommand SaveCommand { get; }
     protected TModel Model { get; }
 
     protected EditorViewModelBase(TModel model)
     {
         Model = model;
         Model.PropertyChanged += OnModelPropertyChanged;
-        SaveCommand = new RelayCommand(async _ => await SaveAsync(), _ => IsDirty);
+        SaveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
+    }
+
+    partial void OnIsDirtyChanged(bool value)
+    {
+        SaveCommand.NotifyCanExecuteChanged();
     }
 
     private void OnModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         IsDirty = true;
     }
+
+    private bool CanSave() => IsDirty;
 
     private async Task SaveAsync()
     {

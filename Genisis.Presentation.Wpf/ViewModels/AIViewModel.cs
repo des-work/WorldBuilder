@@ -1,68 +1,48 @@
+using CommunityToolkit.Mvvm.Input;
 using Genisis.Core.Services;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Genisis.Presentation.Wpf.ViewModels;
 
 public record ChatMessage(string Role, string Content);
 
-public class AIViewModel : ViewModelBase
+public partial class AIViewModel : ViewModelBase
 {
     private readonly IAiService _aiService;
     private string _systemPrompt = string.Empty;
     private List<ChatMessage> _chatHistory = new();
 
+    [ObservableProperty]
     private string _interactionTitle = "Ask Your Universe";
-    public string InteractionTitle
-    {
-        get => _interactionTitle;
-        set { _interactionTitle = value; OnPropertyChanged(); }
-    }
 
     public ObservableCollection<string> AvailableModels { get; } = new();
 
+    [ObservableProperty]
     private string? _selectedModel;
-    public string? SelectedModel
-    {
-        get => _selectedModel;
-        set { _selectedModel = value; OnPropertyChanged(); (SendQueryCommand as RelayCommand)?.RaiseCanExecuteChanged(); }
-    }
 
+    [ObservableProperty]
     private string _userQuery = string.Empty;
-    public string UserQuery
-    {
-        get => _userQuery;
-        set { _userQuery = value; OnPropertyChanged(); }
-    }
 
+    [ObservableProperty]
     private string _aiResponse = "Select a model and ask a question about your selected item.";
-    public string AiResponse
-    {
-        get => _aiResponse;
-        set { _aiResponse = value; OnPropertyChanged(); }
-    }
 
+    [ObservableProperty]
     private bool _isLoading;
-    public bool IsLoading
-    {
-        get => _isLoading;
-        set { _isLoading = value; OnPropertyChanged(); (SendQueryCommand as RelayCommand)?.RaiseCanExecuteChanged(); }
-    }
 
-    public ICommand LoadModelsCommand { get; }
-    public ICommand ClearHistoryCommand { get; }
-    public ICommand SendQueryCommand { get; }
+    public IAsyncRelayCommand LoadModelsCommand { get; }
+    public IRelayCommand ClearHistoryCommand { get; }
+    public IAsyncRelayCommand SendQueryCommand { get; }
 
     public AIViewModel(IAiService aiService)
     {
         _aiService = aiService;
-        LoadModelsCommand = new RelayCommand(async _ => await LoadModelsAsync());
-        ClearHistoryCommand = new RelayCommand(_ => ClearHistory());
-        SendQueryCommand = new RelayCommand(async _ => await SendQueryAsync(), _ => !IsLoading && !string.IsNullOrEmpty(SelectedModel));
+        LoadModelsCommand = new AsyncRelayCommand(LoadModelsAsync);
+        ClearHistoryCommand = new RelayCommand(ClearHistory);
+        SendQueryCommand = new AsyncRelayCommand(SendQueryAsync, () => !IsLoading && !string.IsNullOrEmpty(SelectedModel));
     }
 
     public void UpdateInteraction(string title, string systemPrompt)

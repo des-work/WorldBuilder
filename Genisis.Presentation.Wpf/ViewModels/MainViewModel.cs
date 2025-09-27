@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.Input;
 using Genisis.Core.Models;
 using Genisis.Core.Repositories;
 using Genisis.Application.Services;
@@ -5,7 +6,6 @@ using Genisis.Presentation.Wpf.Services;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Genisis.Presentation.Wpf.ViewModels;
 
@@ -81,11 +81,11 @@ public class MainViewModel : ViewModelBase
 
     public AIViewModel AiViewModel { get; }
 
-    public ICommand AddUniverseCommand { get; }
-    public ICommand AddStoryCommand { get; }
-    public ICommand AddChapterCommand { get; }
-    public ICommand AddCharacterCommand { get; }
-    public ICommand DeleteCommand { get; }
+    public IAsyncRelayCommand AddUniverseCommand { get; }
+    public IAsyncRelayCommand AddStoryCommand { get; }
+    public IAsyncRelayCommand AddChapterCommand { get; }
+    public IAsyncRelayCommand AddCharacterCommand { get; }
+    public IAsyncRelayCommand DeleteCommand { get; }
 
     public MainViewModel(IUniverseRepository universeRepository, IStoryRepository storyRepository, IChapterRepository chapterRepository, ICharacterRepository characterRepository, AIViewModel aiViewModel, IPromptGenerationService promptGenerationService, IDialogService dialogService)
     {
@@ -97,12 +97,17 @@ public class MainViewModel : ViewModelBase
         _promptGenerationService = promptGenerationService;
         _dialogService = dialogService;
 
-        AddUniverseCommand = new RelayCommand(async _ => await AddUniverse());
-        AddStoryCommand = new RelayCommand(async _ => await AddStory(), _ => SelectedItem is Universe);
-        AddChapterCommand = new RelayCommand(async _ => await AddChapter(), _ => SelectedItem is Story);
-        AddCharacterCommand = new RelayCommand(async _ => await AddCharacter(), _ => SelectedItem is Universe or CharacterFolderViewModel);
-        DeleteCommand = new RelayCommand(async _ => await DeleteSelectedItemAsync(), _ => SelectedItem is not null);
+        AddUniverseCommand = new AsyncRelayCommand(AddUniverse);
+        AddStoryCommand = new AsyncRelayCommand(AddStory, CanAddStory);
+        AddChapterCommand = new AsyncRelayCommand(AddChapter, CanAddChapter);
+        AddCharacterCommand = new AsyncRelayCommand(AddCharacter, CanAddCharacter);
+        DeleteCommand = new AsyncRelayCommand(DeleteSelectedItemAsync, CanDelete);
     }
+
+    private bool CanAddStory() => SelectedItem is Universe;
+    private bool CanAddChapter() => SelectedItem is Story;
+    private bool CanAddCharacter() => SelectedItem is Universe or CharacterFolderViewModel;
+    private bool CanDelete() => SelectedItem is not null;
 
     private async Task UpdateAiContext(object? selectedItem, CancellationToken cancellationToken = default)
     {
