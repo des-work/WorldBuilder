@@ -88,10 +88,10 @@
 
         <!-- Content Area -->
         <Grid Grid.Row="1" Background="{StaticResource BackgroundColor}">
-            <!-- Bootscreen -->
-            <views:BootscreenView x:Name="BootscreenView"
-                                  Visibility="Visible"
-                                  BootscreenCompleted="BootscreenView_BootscreenCompleted"/>
+            <!-- Enhanced Bootscreen -->
+            <views:EnhancedBootscreenView x:Name="EnhancedBootscreenView"
+                                          Visibility="Visible"
+                                          BootscreenCompleted="EnhancedBootscreenView_BootscreenCompleted"/>
 
             <!-- Main Content -->
             <Grid x:Name="MainContentGrid" Visibility="Collapsed">

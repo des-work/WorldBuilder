@@ -39,10 +39,10 @@ public partial class MainWindowV3 : Window
             // Update theme selector
             UpdateThemeSelector();
 
-            // Start bootscreen animation
+            // Start enhanced bootscreen animation
             if (_themeService.CurrentTheme != null)
             {
-                await BootscreenView.StartAnimationAsync(_themeService.CurrentTheme);
+                await EnhancedBootscreenView.StartAnimationAsync(_themeService.CurrentTheme);
             }
 
             _isInitialized = true;
@@ -99,12 +99,12 @@ public partial class MainWindowV3 : Window
     }
 
     /// <summary>
-    /// Handle bootscreen completed event
+    /// Handle enhanced bootscreen completed event
     /// </summary>
-    private void BootscreenView_BootscreenCompleted(object? sender, EventArgs e)
+    private void EnhancedBootscreenView_BootscreenCompleted(object? sender, EventArgs e)
     {
-        // Hide bootscreen and show main content
-        BootscreenView.Visibility = Visibility.Collapsed;
+        // Hide enhanced bootscreen and show main content
+        EnhancedBootscreenView.Visibility = Visibility.Collapsed;
         MainContentGrid.Visibility = Visibility.Visible;
 
         // Start fade in animation for main content
@@ -253,8 +253,8 @@ public partial class MainWindowV3 : Window
         _themeService.ThemeTransitionStarted -= OnThemeTransitionStarted;
         _themeService.ThemeTransitionCompleted -= OnThemeTransitionCompleted;
 
-        // Cleanup bootscreen
-        BootscreenView.Cleanup();
+        // Cleanup enhanced bootscreen
+        EnhancedBootscreenView.Cleanup();
 
         base.OnClosed(e);
     }
