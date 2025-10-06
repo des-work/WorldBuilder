@@ -1,64 +1,55 @@
 using Genisis.Core.Models;
 using Genisis.Core.Repositories;
+using Genisis.Core.ValueObjects;
 using Genisis.Infrastructure.Data;
+using Genisis.Infrastructure.Specifications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Threading;
 
 namespace Genisis.Infrastructure.Repositories;
 
-public class UniverseRepository : IUniverseRepository
+public class UniverseRepository : BaseRepository<Universe>, IUniverseRepository
 {
-    private readonly GenesisDbContext _dbContext;
-    private readonly ILogger<UniverseRepository> _logger;
-
-    public UniverseRepository(GenesisDbContext dbContext, ILogger<UniverseRepository> logger)
+    public UniverseRepository(GenesisDbContext context, ILogger<UniverseRepository> logger) 
+        : base(context, logger)
     {
-        _dbContext = dbContext;
-        _logger = logger;
     }
 
-    public async Task<Universe> AddAsync(Universe universe, CancellationToken cancellationToken = default)
+    public async Task<Universe?> GetByIdWithContentAsync(UniverseId id, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Adding new Universe: {UniverseName}", universe.Name);
-        await _dbContext.Universes.AddAsync(universe, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        return universe;
+        var specification = new UniverseWithContentSpecification(id);
+        return await GetFirstBySpecificationAsync(specification, cancellationToken);
     }
 
-    public Task<List<Universe>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<Universe?> GetByNameAsync(EntityName name, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Getting all Universes.");
-        return _dbContext.Universes
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        var specification = new UniverseByNameSpecification(name);
+        return await GetFirstBySpecificationAsync(specification, cancellationToken);
     }
 
-    public Task<Universe?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<bool> IsNameUniqueAsync(EntityName name, UniverseId? excludeId = null, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Universes
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        if (excludeId.HasValue)
+        {
+            var specification = new UniverseByNameExcludingIdSpecification(name, excludeId.Value);
+            return !await AnyBySpecificationAsync(specification, cancellationToken);
+        }
+        else
+        {
+            var specification = new UniverseByNameSpecification(name);
+            return !await AnyBySpecificationAsync(specification, cancellationToken);
+        }
     }
 
-    public Task<Universe?> GetByIdWithStoriesAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<List<Universe>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Getting Universe {UniverseId} with its Stories.", id);
-        return _dbContext.Universes
-            .AsNoTracking()
-            .Include(u => u.Stories)
-            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        var specification = new UniverseSearchSpecification(searchTerm);
+        return await GetBySpecificationAsync(specification, cancellationToken);
     }
 
-    public Task UpdateAsync(Universe entity, CancellationToken cancellationToken = default)
+    public async Task<List<Universe>> GetAllOrderedByNameAsync(CancellationToken cancellationToken = default)
     {
-        _dbContext.Universes.Update(entity);
-        return _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public Task DeleteAsync(Universe entity, CancellationToken cancellationToken = default)
-    {
-        _dbContext.Universes.Remove(entity);
-        return _dbContext.SaveChangesAsync(cancellationToken);
+        var specification = new AllUniversesOrderedByNameSpecification();
+        return await GetBySpecificationAsync(specification, cancellationToken);
     }
 }

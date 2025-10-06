@@ -1,0 +1,219 @@
+<UserControl x:Class="Genisis.Presentation.Wpf.Views.BootscreenView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <!-- Big Bang Animation -->
+        <Storyboard x:Key="BigBangAnimation" Completed="BigBangAnimation_Completed">
+            <DoubleAnimation Storyboard.TargetName="BigBangEffect"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0" To="1" Duration="0:0:0.5"/>
+            <DoubleAnimation Storyboard.TargetName="BigBangEffect"
+                           Storyboard.TargetProperty="ScaleX"
+                           From="0.1" To="2" Duration="0:0:2"/>
+            <DoubleAnimation Storyboard.TargetName="BigBangEffect"
+                           Storyboard.TargetProperty="ScaleY"
+                           From="0.1" To="2" Duration="0:0:2"/>
+            <ColorAnimation Storyboard.TargetName="BigBangBrush"
+                          Storyboard.TargetProperty="Color"
+                          From="White" To="Transparent"
+                          Duration="0:0:2"/>
+        </Storyboard>
+
+        <!-- Galaxy Formation Animation -->
+        <Storyboard x:Key="GalaxyFormationAnimation" Completed="GalaxyFormationAnimation_Completed">
+            <DoubleAnimation Storyboard.TargetName="GalaxySpiral"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0" To="1" Duration="0:0:1"/>
+            <DoubleAnimation Storyboard.TargetName="GalaxySpiral"
+                           Storyboard.TargetProperty="RenderTransform.Angle"
+                           From="0" To="360" Duration="0:0:3"/>
+            <DoubleAnimation Storyboard.TargetName="GalaxyCenter"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0" To="1" Duration="0:0:1"/>
+            <DoubleAnimation Storyboard.TargetName="GalaxyCenter"
+                           Storyboard.TargetProperty="ScaleX"
+                           From="0.1" To="1" Duration="0:0:2"/>
+            <DoubleAnimation Storyboard.TargetName="GalaxyCenter"
+                           Storyboard.TargetProperty="ScaleY"
+                           From="0.1" To="1" Duration="0:0:2"/>
+        </Storyboard>
+
+        <!-- Title Reveal Animation -->
+        <Storyboard x:Key="TitleRevealAnimation" Completed="TitleRevealAnimation_Completed">
+            <DoubleAnimation Storyboard.TargetName="TitleText"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0" To="1" Duration="0:0:1"/>
+            <DoubleAnimation Storyboard.TargetName="TitleText"
+                           Storyboard.TargetProperty="RenderTransform.ScaleX"
+                           From="0.5" To="1" Duration="0:0:1"/>
+            <DoubleAnimation Storyboard.TargetName="TitleText"
+                           Storyboard.TargetProperty="RenderTransform.ScaleY"
+                           From="0.5" To="1" Duration="0:0:1"/>
+            <DoubleAnimation Storyboard.TargetName="SubtitleText"
+                           Storyboard.TargetProperty="Opacity"
+                           From="0" To="1" Duration="0:0:1"
+                           BeginTime="0:0:0.5"/>
+        </Storyboard>
+
+        <!-- Particle Animation -->
+        <Storyboard x:Key="ParticleAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="ParticleContainer"
+                           Storyboard.TargetProperty="RenderTransform.Angle"
+                           From="0" To="360" Duration="0:0:20"/>
+        </Storyboard>
+
+        <!-- Glow Effect -->
+        <DropShadowEffect x:Key="GlowEffect" 
+                         Color="Cyan" 
+                         BlurRadius="20" 
+                         ShadowDepth="0" 
+                         Opacity="0.8"/>
+    </UserControl.Resources>
+
+    <Grid Background="Black">
+        <!-- Background Stars -->
+        <Canvas x:Name="StarField" Background="Transparent">
+            <!-- Stars will be generated programmatically -->
+        </Canvas>
+
+        <!-- Particle Container -->
+        <Canvas x:Name="ParticleContainer" 
+                RenderTransformOrigin="0.5,0.5">
+            <Canvas.RenderTransform>
+                <RotateTransform x:Name="ParticleRotation"/>
+            </Canvas.RenderTransform>
+            <!-- Particles will be generated programmatically -->
+        </Canvas>
+
+        <!-- Big Bang Effect -->
+        <Ellipse x:Name="BigBangEffect" 
+                 Width="100" Height="100" 
+                 Opacity="0"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <ScaleTransform x:Name="BigBangScale"/>
+            </Ellipse.RenderTransform>
+            <Ellipse.Fill>
+                <RadialGradientBrush x:Name="BigBangBrush">
+                    <GradientStop Color="White" Offset="0"/>
+                    <GradientStop Color="Yellow" Offset="0.5"/>
+                    <GradientStop Color="Orange" Offset="1"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <!-- Galaxy Spiral -->
+        <Path x:Name="GalaxySpiral" 
+              Opacity="0"
+              RenderTransformOrigin="0.5,0.5"
+              Effect="{StaticResource GlowEffect}">
+            <Path.RenderTransform>
+                <RotateTransform x:Name="GalaxyRotation"/>
+            </Path.RenderTransform>
+            <Path.Data>
+                <PathGeometry>
+                    <PathFigure StartPoint="400,300">
+                        <PathSegmentCollection>
+                            <ArcSegment Point="450,250" 
+                                       Size="50,50" 
+                                       RotationAngle="0" 
+                                       IsLargeArc="False" 
+                                       SweepDirection="Clockwise"/>
+                            <ArcSegment Point="500,300" 
+                                       Size="50,50" 
+                                       RotationAngle="0" 
+                                       IsLargeArc="False" 
+                                       SweepDirection="Clockwise"/>
+                            <ArcSegment Point="450,350" 
+                                       Size="50,50" 
+                                       RotationAngle="0" 
+                                       IsLargeArc="False" 
+                                       SweepDirection="Clockwise"/>
+                            <ArcSegment Point="400,300" 
+                                       Size="50,50" 
+                                       RotationAngle="0" 
+                                       IsLargeArc="False" 
+                                       SweepDirection="Clockwise"/>
+                        </PathSegmentCollection>
+                    </PathFigure>
+                </PathGeometry>
+            </Path.Data>
+            <Path.Stroke>
+                <LinearGradientBrush>
+                    <GradientStop Color="Cyan" Offset="0"/>
+                    <GradientStop Color="Purple" Offset="0.5"/>
+                    <GradientStop Color="Cyan" Offset="1"/>
+                </LinearGradientBrush>
+            </Path.Stroke>
+            <Path.StrokeThickness>3</Path.StrokeThickness>
+        </Path>
+
+        <!-- Galaxy Center -->
+        <Ellipse x:Name="GalaxyCenter" 
+                 Width="80" Height="80" 
+                 Opacity="0"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <ScaleTransform x:Name="GalaxyCenterScale"/>
+            </Ellipse.RenderTransform>
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="White" Offset="0"/>
+                    <GradientStop Color="Yellow" Offset="0.3"/>
+                    <GradientStop Color="Orange" Offset="0.7"/>
+                    <GradientStop Color="Red" Offset="1"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+            <Ellipse.Effect>
+                <DropShadowEffect Color="Yellow" BlurRadius="30" ShadowDepth="0" Opacity="0.8"/>
+            </Ellipse.Effect>
+        </Ellipse>
+
+        <!-- Title Text -->
+        <StackPanel HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    RenderTransformOrigin="0.5,0.5">
+            <StackPanel.RenderTransform>
+                <ScaleTransform x:Name="TitleScale"/>
+            </StackPanel.RenderTransform>
+            
+            <TextBlock x:Name="TitleText" 
+                       Text="World Builder" 
+                       FontSize="48" 
+                       FontWeight="Bold" 
+                       Foreground="White" 
+                       HorizontalAlignment="Center"
+                       Opacity="0"
+                       Effect="{StaticResource GlowEffect}"/>
+            
+            <TextBlock x:Name="SubtitleText" 
+                       Text="Create Your Universe" 
+                       FontSize="24" 
+                       FontWeight="Normal" 
+                       Foreground="LightGray" 
+                       HorizontalAlignment="Center"
+                       Margin="0,10,0,0"
+                       Opacity="0"/>
+        </StackPanel>
+
+        <!-- Loading Indicator -->
+        <StackPanel HorizontalAlignment="Center" 
+                    VerticalAlignment="Bottom" 
+                    Margin="0,0,0,50">
+            <TextBlock Text="Loading..." 
+                       FontSize="16" 
+                       Foreground="LightGray" 
+                       HorizontalAlignment="Center"/>
+            <ProgressBar Width="200" 
+                         Height="4" 
+                         Margin="0,10,0,0"
+                         IsIndeterminate="True"
+                         Foreground="Cyan"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

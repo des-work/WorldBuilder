@@ -1,0 +1,111 @@
+<Window x:Class="Genisis.Presentation.Wpf.MainWindowV2"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Genisis.Presentation.Wpf"
+        xmlns:viewmodels="clr-namespace:Genisis.Presentation.Wpf.ViewModels"
+        mc:Ignorable="d"
+        Title="{Binding Title}" Height="720" Width="1280"
+        Background="#FF2D2D30"
+        RenderOptions.BitmapScalingMode="HighQuality"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType">
+    
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/> <!-- Left Pane: Navigation -->
+            <ColumnDefinition Width="*"/>   <!-- Center Pane: Editor -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Pane: Universe List -->
+        <DockPanel Grid.Column="0" Background="{StaticResource SecondaryBackground}">
+            <!-- Toolbar -->
+            <StackPanel DockPanel.Dock="Top" Margin="10">
+                <Button Content="+ New Universe" Margin="0,0,0,5"
+                        Command="{Binding CreateUniverseCommand}"
+                        Background="{StaticResource AccentGreen}" 
+                        Foreground="White" 
+                        FontWeight="Bold" 
+                        BorderThickness="0"
+                        Padding="10,5"/>
+                
+                <Button Content="Refresh" Margin="0,0,0,5"
+                        Command="{Binding RefreshCommand}"
+                        Background="#34495e" 
+                        Foreground="White" 
+                        BorderThickness="0"
+                        Padding="10,5"/>
+            </StackPanel>
+
+            <!-- Universe List -->
+            <ListBox ItemsSource="{Binding Universes}"
+                     SelectedItem="{Binding SelectedUniverse}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{Binding Name.Value}" 
+                                           FontWeight="Bold" 
+                                           Foreground="{StaticResource PrimaryText}"/>
+                                <TextBlock Text="{Binding Description.Value}" 
+                                           FontStyle="Italic" 
+                                           Foreground="{StaticResource SecondaryText}"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxHeight="40"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Content="Edit" Margin="2" Padding="5,2"
+                                        Background="#3498db" Foreground="White" BorderThickness="0"
+                                        Command="{Binding DataContext.UpdateUniverseCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                                <Button Content="Delete" Margin="2" Padding="5,2"
+                                        Background="#e74c3c" Foreground="White" BorderThickness="0"
+                                        Command="{Binding DataContext.DeleteUniverseCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <!-- Center Pane: Editor -->
+        <Grid Grid.Column="1" Background="#1e1e1e">
+            <ContentControl Content="{Binding SelectedUniverse}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type models:Universe}">
+                        <viewmodels:UniverseViewModelV2 Universe="{Binding}"/>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+            
+            <!-- Loading Overlay -->
+            <Grid Background="#80000000" 
+                  Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="Loading..." 
+                               Foreground="White" 
+                               FontSize="16" 
+                               Margin="0,0,0,10"/>
+                    <ProgressBar Width="200" Height="4" IsIndeterminate="True"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
