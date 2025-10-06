@@ -28,9 +28,6 @@ public partial class MainWindowV3 : Window
     {
         try
         {
-            // Initialize theme service
-            await _themeService.InitializeAsync();
-
             // Subscribe to theme events
             _themeService.ThemeChanged += OnThemeChanged;
             _themeService.ThemeTransitionStarted += OnThemeTransitionStarted;
@@ -39,17 +36,27 @@ public partial class MainWindowV3 : Window
             // Update theme selector
             UpdateThemeSelector();
 
-            // Start enhanced bootscreen animation
-            if (_themeService.CurrentTheme != null)
-            {
-                await EnhancedBootscreenView.StartAnimationAsync(_themeService.CurrentTheme);
-            }
-
             _isInitialized = true;
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Failed to initialize application: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>
+    /// Start bootscreen animation (called by startup service)
+    /// </summary>
+    public async Task StartBootscreenAsync(IThemeProvider theme)
+    {
+        try
+        {
+            // Start enhanced bootscreen animation
+            await EnhancedBootscreenView.StartAnimationAsync(theme);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to start bootscreen: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
