@@ -236,7 +236,7 @@ public class StartupService : IStartupService
         try
         {
             // Main window and view model
-            var mainWindow = services.GetRequiredService<MainWindow>();
+            var mainWindow = services.GetRequiredService<MainWindowV3>();
             var mainViewModel = services.GetRequiredService<MainViewModel>();
             criticalServices.Add(mainWindow);
             criticalServices.Add(mainViewModel);
@@ -287,17 +287,14 @@ public class StartupService : IStartupService
         {
             using var scope = _host.Services.CreateScope();
             var themeService = scope.ServiceProvider.GetRequiredService<IThemeService>();
-            var mainWindow = scope.ServiceProvider.GetRequiredService<MainWindow>();
+            var mainWindow = scope.ServiceProvider.GetRequiredService<MainWindowV3>();
 
             if (themeService.CurrentTheme != null)
             {
                 // Start bootscreen animation
                 await _dispatcher.InvokeAsync(async () =>
                 {
-                    if (mainWindow is MainWindowV3 mainWindowV3)
-                    {
-                        await mainWindowV3.StartBootscreenAsync(themeService.CurrentTheme);
-                    }
+                    await mainWindow.StartBootscreenAsync(themeService.CurrentTheme);
                 });
             }
         }

@@ -1,14 +1,7 @@
 using Genisis.Presentation.Wpf.Services;
 using Genisis.Presentation.Wpf.Themes;
 using Genisis.Presentation.Wpf.ViewModels;
-using Genisis.Infrastructure.Data;
-using Genisis.Infrastructure.Repositories;
-using Genisis.Infrastructure.Services;
-using Genisis.Core.Repositories;
-using Genisis.Core.Services;
-using Genisis.Application.Services;
-using Genisis.Application.Handlers;
-using Microsoft.EntityFrameworkCore;
+using Genisis.Presentation.Wpf.Composition;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.IO;
@@ -43,7 +36,8 @@ public partial class App : System.Windows.Application
             .UseSerilog() // Use Serilog for all logging
             .ConfigureServices((context, services) =>
             {
-                ConfigureServices(services);
+                // Unified service registration
+                services.AddWorldBuilderAppServices(context.Configuration);
             })
             .Build();
 
@@ -51,55 +45,7 @@ public partial class App : System.Windows.Application
         DispatcherUnhandledException += OnDispatcherUnhandledException;
     }
 
-    private void ConfigureServices(IServiceCollection services)
-    {
-        // The path for our local database file
-        var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WorldBuilderAI", "worldbuilder.db");
-        Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
-
-        // Register the DbContext for Dependency Injection with optimized settings
-        services.AddDbContext<GenesisDbContext>(options =>
-        {
-            options.UseSqlite($"Data Source={dbPath}", sqliteOptions =>
-            {
-                sqliteOptions.CommandTimeout(30); // Increase timeout for complex operations
-                sqliteOptions.MigrationsAssembly("Genisis.Infrastructure");
-            });
-
-            // Enable connection pooling and performance optimizations
-            options.EnableSensitiveDataLogging(false); // Disable in production
-            options.EnableDetailedErrors(false); // Disable in production
-        });
-
-        // Register the Repository
-        services.AddScoped<IUniverseRepository, UniverseRepository>();
-        services.AddScoped<IStoryRepository, StoryRepository>();
-        services.AddScoped<ICharacterRepository, CharacterRepository>();
-        services.AddScoped<IChapterRepository, ChapterRepository>();
-
-        // Register AI Services
-        services.AddSingleton<IAiService, OllamaAiService>();
-        services.AddScoped<IPromptGenerationService, PromptGenerationService>();
-        services.AddScoped<IItemHandlerFactory, ItemHandlerFactory>();
-
-        // Register Memory Cache for performance optimization
-        services.AddMemoryCache();
-
-        // Register the Data Seeder
-        services.AddTransient<DataSeeder>();
-
-        // Register ViewModels
-        services.AddSingleton<AIViewModel>();
-        services.AddSingleton<MainViewModel>();
-
-        // Register the MainWindow (using MainWindowV3 for enhanced bootscreen)
-        services.AddSingleton<MainWindowV3>();
-
-        // Register UI Services
-        services.AddTransient<IDialogService, DialogService>();
-        services.AddSingleton<IThemeService, ThemeService>();
-        services.AddSingleton<IStartupService, StartupService>();
-    }
+    // Service registration moved to Composition/ServiceRegistration.AddWorldBuilderAppServices
 
     protected override async void OnStartup(StartupEventArgs e)
     {
