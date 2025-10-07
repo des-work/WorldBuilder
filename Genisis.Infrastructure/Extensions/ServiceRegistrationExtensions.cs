@@ -26,8 +26,9 @@ public static class ServiceRegistrationExtensions
         services.Configure<WorldBuilderConfiguration>(configuration);
 
         // Database (tests can override with in-memory via AddDbContext after calling this)
-        services.AddDbContext<GenesisDbContext>(options =>
+        services.AddDbContext<GenesisDbContext>((sp, options) =>
         {
+            var cfg = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<WorldBuilderConfiguration>>().Value;
             var dbPath = configuration.GetConnectionString("DefaultConnection");
             if (string.IsNullOrWhiteSpace(dbPath))
             {
@@ -38,9 +39,12 @@ public static class ServiceRegistrationExtensions
 
             options.UseSqlite($"Data Source={dbPath}", sqliteOptions =>
             {
-                sqliteOptions.CommandTimeout(30);
+                sqliteOptions.CommandTimeout(cfg.Database.CommandTimeout);
                 sqliteOptions.MigrationsAssembly("Genisis.Infrastructure");
             });
+
+            options.EnableSensitiveDataLogging(cfg.Database.EnableSensitiveDataLogging);
+            options.EnableDetailedErrors(cfg.Database.EnableDetailedErrors);
         });
 
         // Caching
@@ -55,8 +59,14 @@ public static class ServiceRegistrationExtensions
         // Domain services
         services.AddScoped<IUniverseDomainService, UniverseDomainService>();
 
-        // AI service (local Ollama)
-        services.AddSingleton<IAiService, OllamaAiService>();
+        // AI service (local Ollama) via typed HttpClient
+        services.AddHttpClient<IAiService, OllamaAiService>(client =>
+        {
+            var baseUrl = configuration["AI:OllamaBaseUrl"] ?? "http://localhost:11434";
+            var timeoutSeconds = int.TryParse(configuration["AI:RequestTimeout"], out var t) ? t : 300;
+            client.BaseAddress = new Uri(baseUrl);
+            client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+        });
 
         // Data seeding
         services.AddTransient<DataSeeder>();

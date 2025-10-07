@@ -37,4 +37,10 @@
     <!-- Rely on implicit XAML items to avoid duplicates -->
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

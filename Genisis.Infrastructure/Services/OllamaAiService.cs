@@ -21,9 +21,9 @@ public class OllamaAiService : IAiService
     private readonly IMemoryCache _cache;
     private const string ModelsCacheKey = "ollama_models";
 
-    public OllamaAiService(IMemoryCache cache)
+    public OllamaAiService(HttpClient httpClient, IMemoryCache cache)
     {
-        _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:11434") };
+        _httpClient = httpClient;
         _cache = cache;
     }
 

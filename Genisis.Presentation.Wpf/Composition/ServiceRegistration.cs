@@ -9,8 +9,8 @@ using Genisis.Infrastructure.Services;
 using Genisis.Presentation.Wpf.Services;
 using Genisis.Presentation.Wpf.Themes;
 using Genisis.Presentation.Wpf.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Genisis.Presentation.Wpf.Composition;
@@ -27,20 +27,23 @@ public static class ServiceRegistration
         services.Configure<WorldBuilderConfiguration>(configuration);
 
         // Database (SQLite in AppData by default, overridable via connection string)
-        services.AddDbContext<GenesisDbContext>(options =>
+        services.AddDbContext<GenesisDbContext>((sp, options) =>
         {
-            var dbPath = configuration.GetConnectionString("DefaultConnection")
-                ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WorldBuilderAI", "worldbuilder.db");
+            var cfg = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<WorldBuilderConfiguration>>().Value;
+            var conn = configuration.GetConnectionString("DefaultConnection");
+            var dbPath = string.IsNullOrWhiteSpace(conn)
+                ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WorldBuilderAI", "worldbuilder.db")
+                : conn;
             Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
 
             options.UseSqlite($"Data Source={dbPath}", sqliteOptions =>
             {
-                sqliteOptions.CommandTimeout(30);
+                sqliteOptions.CommandTimeout(cfg.Database.CommandTimeout);
                 sqliteOptions.MigrationsAssembly("Genisis.Infrastructure");
             });
 
-            options.EnableSensitiveDataLogging(false);
-            options.EnableDetailedErrors(false);
+            options.EnableSensitiveDataLogging(cfg.Database.EnableSensitiveDataLogging);
+            options.EnableDetailedErrors(cfg.Database.EnableDetailedErrors);
         });
 
         // Repositories
@@ -54,8 +57,14 @@ public static class ServiceRegistration
         services.AddScoped<IItemHandlerFactory, ItemHandlerFactory>();
         services.AddScoped<IUniverseDomainService, UniverseDomainService>();
 
-        // AI services (local Ollama integration)
-        services.AddSingleton<IAiService, OllamaAiService>();
+        // AI services (local Ollama integration) via typed HttpClient
+        services.AddHttpClient<IAiService, OllamaAiService>(client =>
+        {
+            var baseUrl = configuration["AI:OllamaBaseUrl"] ?? "http://localhost:11434";
+            var timeoutSeconds = int.TryParse(configuration["AI:RequestTimeout"], out var t) ? t : 300;
+            client.BaseAddress = new Uri(baseUrl);
+            client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+        });
 
         // Caching and data seeding
         services.AddMemoryCache();
@@ -76,4 +85,3 @@ public static class ServiceRegistration
         return services;
     }
 }
-

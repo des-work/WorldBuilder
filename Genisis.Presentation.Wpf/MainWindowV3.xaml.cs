@@ -15,10 +15,10 @@ public partial class MainWindowV3 : Window
     private readonly IThemeService _themeService;
     private bool _isInitialized;
 
-    public MainWindowV3()
+    public MainWindowV3(IThemeService themeService)
     {
         InitializeComponent();
-        _themeService = new ThemeService();
+        _themeService = themeService;
         InitializeAsync();
     }
 

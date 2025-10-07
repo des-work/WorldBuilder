@@ -1,6 +1,8 @@
 using System.IO;
 using System.Text.Json;
+using Genisis.Core.Configuration;
 using Genisis.Presentation.Wpf.Themes;
+using Microsoft.Extensions.Options;
 
 namespace Genisis.Presentation.Wpf.Services;
 
@@ -12,11 +14,15 @@ public class ThemeService : IThemeService
     private readonly ThemeManager _themeManager;
     private readonly string _preferencesPath;
     private IThemeProvider? _currentTheme;
+    private readonly string _defaultThemeId;
 
-    public ThemeService()
+    public ThemeService() : this(Microsoft.Extensions.Options.Options.Create(new WorldBuilderConfiguration())) { }
+
+    public ThemeService(IOptions<WorldBuilderConfiguration> options)
     {
         _themeManager = new ThemeManager();
-        _preferencesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WorldBuilder", "theme.json");
+        _preferencesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WorldBuilderAI", "theme.json");
+        _defaultThemeId = options?.Value?.UI?.DefaultTheme?.ToLowerInvariant() ?? "fantasy";
         
         // Subscribe to theme manager events
         _themeManager.ThemeChanged += OnThemeChanged;
@@ -87,8 +93,8 @@ public class ThemeService : IThemeService
         }
         else
         {
-            // Default to fantasy theme
-            await SwitchThemeAsync("fantasy", false);
+            // Default to configured theme
+            await SwitchThemeAsync(_defaultThemeId, false);
         }
     }
 
