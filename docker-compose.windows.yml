@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.windows
+    image: worldbuilder/windows-build:latest
+    environment:
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+    volumes:
+      - ./artifacts:C:\out
+    # Runs build + test by default (from Dockerfile CMD)
+
+  publish:
+    build:
+      context: .
+      dockerfile: Dockerfile.windows
+    image: worldbuilder/windows-build:latest
+    environment:
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+    volumes:
+      - ./artifacts:C:\out
+    command: >-
+      powershell -NoProfile -Command 
+      dotnet restore 'WorldBuilder.sln';
+      if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE };
+      dotnet build -c Release --no-restore;
+      if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE };
+      dotnet publish 'Genisis.Presentation.Wpf/Genisis.Presentation.Wpf.csproj' 
+        -c Release -r win-x64 --self-contained true 
+        -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true 
+        -o C:\out\publish;
+      if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE };
+      Write-Host 'Publish complete. Output at C:\out\publish'
+
+volumes:
+  # Named volumes can be declared here if preferred; using bind mount to ./artifacts
+

@@ -1,0 +1,20 @@
+# escape=`
+# Windows-based build/test container for WorldBuilder (WPF, .NET 8)
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2022 AS build
+SHELL ["powershell", "-NoProfile", "-Command"]
+
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+WORKDIR C:\src
+
+# Copy everything (use .dockerignore to trim context)
+COPY . .
+
+# Restore first to leverage layer caching
+RUN dotnet restore "WorldBuilder.sln"
+
+# Default command runs build+test; compose can override to publish
+CMD dotnet build -c Release --no-restore ; `
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } ; `
+    dotnet test -c Release --no-build --logger "trx;LogFileName=test_results.trx" --results-directory C:\out
+

@@ -29,7 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Rely on implicit compile items to avoid duplicates -->
+    <!-- Exclude alternative AppV2 to avoid duplicate partial definitions -->
+    <Compile Remove="AppV2.xaml.cs" />
   </ItemGroup>
 
   <ItemGroup>

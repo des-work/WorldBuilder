@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Folder Include="Services\" />
+    <Compile Remove="Extensions\ServiceRegistrationExtensions.cs" />
   </ItemGroup>
 
 </Project>

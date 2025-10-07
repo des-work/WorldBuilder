@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 using Genisis.Presentation.Wpf.Controls;
 using Genisis.Presentation.Wpf.Services;
 using Genisis.Presentation.Wpf.Themes;
